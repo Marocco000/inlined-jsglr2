@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2.incremental;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.reducing.ReduceManager;
 import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
+import org.spoofax.jsglr2.reducing.Reducer;
 import org.spoofax.jsglr2.reducing.ReducerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
@@ -36,6 +38,14 @@ public class IncrementalReduceManager
         ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager,
         ReducerFactory<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducerFactory) {
         super(parseTable, stackManager, parseForestManager, reducerFactory);
+        {// replace above super
+            this.parseTable = parseTable;
+            this.stackManager = stackManager;
+            this.parseForestManager = parseForestManager;
+            this.reduceActionFilters = new ArrayList<>();
+    //        this.reducer = reducerFactory.get(stackManager, parseForestManager);
+            this.reducer = new Reducer<>(stackManager, parseForestManager);
+        }
     }
 
     public static

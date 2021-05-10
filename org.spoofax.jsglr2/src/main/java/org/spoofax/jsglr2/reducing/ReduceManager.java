@@ -29,11 +29,11 @@ public class ReduceManager
 //@formatter:on
 {
 
-    protected final IParseTable parseTable;
-    protected final AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
-    protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
-    protected final Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducer;
-    protected final List<ReduceActionFilter<ParseForest, StackNode, ParseState>> reduceActionFilters;
+    protected IParseTable parseTable;
+    protected AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
+    protected ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
+    protected Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducer;
+    protected List<ReduceActionFilter<ParseForest, StackNode, ParseState>> reduceActionFilters;
 
     public ReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
