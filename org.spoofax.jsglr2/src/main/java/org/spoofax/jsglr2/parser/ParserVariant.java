@@ -171,7 +171,7 @@ public class ParserVariant {
         return parser;
     }
 
-    private static
+    public static
 //@formatter:off
    <ParseForest extends IParseForest,
     StackNode   extends IStackNode,
@@ -188,7 +188,7 @@ public class ParserVariant {
             new ForActorStacksFactory(forActorStacksRepresentation));
     }
 
-    private
+    public
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,

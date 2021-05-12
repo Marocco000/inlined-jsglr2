@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalSkippedNode;
 
-public class EagerIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
+public class  EagerIncrementalInputStack extends AbstractInputStack implements IIncrementalInputStack {
     /**
      * The stack contains all subtrees that are yet to be popped. The top of the stack also contains the subtree that
      * has been returned last time. The stack initially only contains EOF and the root.
