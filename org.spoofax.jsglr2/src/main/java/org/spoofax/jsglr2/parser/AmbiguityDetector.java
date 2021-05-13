@@ -18,7 +18,7 @@ public class AmbiguityDetector
     private final String inputString;
     private final Collection<Message> messages;
 
-    AmbiguityDetector(String inputString, Collection<Message> messages) {
+    public AmbiguityDetector(String inputString, Collection<Message> messages) {
         this.inputString = inputString;
         this.messages = messages;
     }

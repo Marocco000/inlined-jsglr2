@@ -38,15 +38,15 @@ public class Parser
 //@formatter:on
     implements IObservableParser<ParseForest, Derivation, ParseNode, StackNode, ParseState> {
 
-    protected final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
-    protected final InputStackFactory<InputStack> inputStackFactory;
-    protected final ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, StackNode, ParseState> parseStateFactory;
-    protected final IParseTable parseTable;
-    protected final StackManager stackManager;
-    protected final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
+    public final ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
+    public final InputStackFactory<InputStack> inputStackFactory;
+    public final ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, StackNode, ParseState> parseStateFactory;
+    public final IParseTable parseTable;
+    public final StackManager stackManager;
+    public final ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
     public final ReduceManager reduceManager;
-    protected final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
-    protected final IParseReporter<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reporter;
+    public final IParseFailureHandler<ParseForest, StackNode, ParseState> failureHandler;
+    public final IParseReporter<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reporter;
 
     public Parser(InputStackFactory<InputStack> inputStackFactory,
         ParseStateFactory<ParseForest, Derivation, ParseNode, InputStack, StackNode, ParseState> parseStateFactory,

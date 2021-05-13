@@ -22,7 +22,7 @@ public class NonAssocDetector
 
     private ParseFailureCause.Type failure = null;
 
-    NonAssocDetector(Collection<Message> messages) {
+    public NonAssocDetector(Collection<Message> messages) {
         this.messages = messages;
     }
 

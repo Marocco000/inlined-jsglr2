@@ -25,13 +25,13 @@ public class DefaultParseFailureHandler
     StackNode_   extends IStackNode,
     ParseState_  extends AbstractParseState<?, StackNode_>>
 //@formatter:on
-    ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
+   ParseFailureHandlerFactory<ParseForest_, Derivation_, ParseNode_, StackNode_, ParseState_> factory() {
         return DefaultParseFailureHandler::new;
     }
 
     ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing;
 
-    DefaultParseFailureHandler(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
+    public DefaultParseFailureHandler(ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing) {
         this.observing = observing;
     }
 

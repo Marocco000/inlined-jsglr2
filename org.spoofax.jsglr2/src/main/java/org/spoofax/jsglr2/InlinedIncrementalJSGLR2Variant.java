@@ -21,6 +21,7 @@ import org.spoofax.jsglr2.parser.EmptyParseReporter;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
+import org.spoofax.jsglr2.reducing.ReduceActionFilter;
 import org.spoofax.jsglr2.reducing.ReducerOptimized;
 import org.spoofax.jsglr2.reducing.Reducing;
 import org.spoofax.jsglr2.stack.StackRepresentation;
@@ -53,16 +54,23 @@ public class InlinedIncrementalJSGLR2Variant extends JSGLR2Variant {
         IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
                 EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
 
-        Parser parser = (Parser) this.parser.withoutRecovery(
+        Parser parser = (Parser)
+
                 new IncrementalParser<>(
                         incrementalInputStackFactory,
                         IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
-                        parseTable, HybridStackManager.factory(),
-                        IncrementalParseForestManager.factory(),
+                        parseTable,
+                        HybridStackManager.factory(),
+                        IncrementalParseForestManager::new,
                         null,
                         IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
-                        DefaultParseFailureHandler.factory(),
-                        EmptyParseReporter.factory()));
+//                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
+//                                stackManager, parseForestManager, ReducerOptimized::new),
+
+                        DefaultParseFailureHandler::new,
+                        EmptyParseReporter.factory());
+
+        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
         return new InlinedIncrementalJSGLR2(parser);
 
