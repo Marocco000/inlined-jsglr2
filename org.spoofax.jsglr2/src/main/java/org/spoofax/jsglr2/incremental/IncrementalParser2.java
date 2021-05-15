@@ -74,7 +74,7 @@ public class IncrementalParser2
                              IParseTable parseTable,
                              StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
                              ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
-                             Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator,
+//                             Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator,
                              ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
                              ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
                              ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory) {
@@ -87,7 +87,7 @@ public class IncrementalParser2
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get(observing);
-        this.parseForestManager = parseForestManagerFactory.get(observing, disambiguator);
+        this.parseForestManager = parseForestManagerFactory.get(observing, null);
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
         this.failureHandler = failureHandlerFactory.get(observing);
         this.reporter = reporterFactory.get(parseForestManager);

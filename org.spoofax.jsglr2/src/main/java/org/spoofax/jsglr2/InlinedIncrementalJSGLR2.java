@@ -9,6 +9,7 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
+import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
 import org.spoofax.jsglr2.incremental.IncrementalParser2;
@@ -64,25 +65,20 @@ public class InlinedIncrementalJSGLR2
 // @formatter:on
         implements JSGLR2<AbstractSyntaxTree> {
 
-//    public final IncrementalParser< ?, ?, ?, ?> parser;
-
-
-//    public final Parser parser;
+    IParseTable parseTable;
     public final IncrementalParser2 parser;
 
+//    IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
+    IncrementalStrategoTermImploder imploder;
 
-//    public final IncrementalStrategoTermImploder<?, ?, ?> imploder;
-//    public final IncrementalTreeShapedTokenizer tokenizer;
-
-
-    IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     ITokenizer<IntermediateResult, TokensResult> tokenizer;
-//    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> tokenizer;
 
     IActiveStacksFactory activeStacksFactory;
     IForActorStacksFactory forActorStacksFactory;
 
     InlinedIncrementalJSGLR2 (IParseTable parseTable){
+        this.parseTable = parseTable;
+
          this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
          this.forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
 
@@ -96,7 +92,7 @@ public class InlinedIncrementalJSGLR2
                         parseTable,
                         HybridStackManager.factory(),
                         IncrementalParseForestManager::new,
-                        null,
+//                        null,
                         IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
 //                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
 //                                stackManager, parseForestManager, ReducerOptimized::new),
@@ -139,7 +135,7 @@ public class InlinedIncrementalJSGLR2
         if(parseResult.isSuccess()) {
             ParseForest parseForest = ((ParseSuccess<ParseForest>) parseResult).parseResult;
 
-            ImplodeResult implodeResult = (ImplodeResult) imploder.implode(request, parseForest, previousImploderCache);
+            ImplodeResult implodeResult = (ImplodeResult) imploder.implode(request, parseForest, (IncrementalTreeImploder.ResultCache) previousImploderCache);
 
             TokensResult tokens =
                     tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
@@ -170,7 +166,7 @@ public class InlinedIncrementalJSGLR2
         parser.observing.notify(observer -> observer.parseStart(parseState));
 
         // TODO StackNode
-        IStackNode initialStackNode = parser.stackManager.createInitialStackNode(parser.parseTable.getStartState());
+        IStackNode initialStackNode = parser.stackManager.createInitialStackNode(parseTable.getStartState());
 
         parseState.activeStacks.add(initialStackNode);
 
@@ -322,7 +318,7 @@ public class InlinedIncrementalJSGLR2
         switch(action.actionType()) {
             case SHIFT:
                 IShift shiftAction = (IShift) action;
-                IState shiftState = parser.parseTable.getState(shiftAction.shiftStateId());
+                IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
                 addForShifter(parseState, stack, shiftState);
 
