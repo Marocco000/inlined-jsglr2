@@ -11,6 +11,7 @@ import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
+import org.spoofax.jsglr2.incremental.IncrementalParser2;
 import org.spoofax.jsglr2.incremental.IncrementalReduceManager;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
@@ -67,7 +68,7 @@ public class InlinedIncrementalJSGLR2
 
 
 //    public final Parser parser;
-    public final IncrementalParser parser;
+    public final IncrementalParser2 parser;
 
 
 //    public final IncrementalStrategoTermImploder<?, ?, ?> imploder;
@@ -78,16 +79,19 @@ public class InlinedIncrementalJSGLR2
     ITokenizer<IntermediateResult, TokensResult> tokenizer;
 //    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> tokenizer;
 
+    IActiveStacksFactory activeStacksFactory;
+    IForActorStacksFactory forActorStacksFactory;
+
     InlinedIncrementalJSGLR2 (IParseTable parseTable){
-        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
-        IForActorStacksFactory forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
+         this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
+         this.forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
 
         IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
                 EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
 
-        Parser parser = (Parser)
-                new IncrementalParser<>(
-                        incrementalInputStackFactory,
+        IncrementalParser2 parser =
+                new IncrementalParser2<>(
+//                        incrementalInputStackFactory,
                         IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
                         parseTable,
                         HybridStackManager.factory(),
@@ -103,7 +107,7 @@ public class InlinedIncrementalJSGLR2
         parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
 
-        this.parser = (IncrementalParser) parser;
+        this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder();
         this.tokenizer = (ITokenizer<IntermediateResult, TokensResult>) new IncrementalTreeShapedTokenizer();
     }
@@ -205,7 +209,15 @@ public class InlinedIncrementalJSGLR2
         IncrementalParseForest updatedTree = previousInput != null && previousResult != null
                 ? parser.processUpdates.processUpdates(previousInput, previousResult, parser.diff.diff(previousInput, request.input))
                 : parser.processUpdates.getParseNodeFromString(request.input);
-        return (IncrementalParseState) parser.parseStateFactory.get(request, parser.incrementalInputStackFactory.get(updatedTree, request.input), parser.observing);
+
+//        return (IncrementalParseState) parser.parseStateFactory.get(request, parser.incrementalInputStackFactory.get(updatedTree, request.input), parser.observing);
+//        return (IncrementalParseState) parser.parseStateFactory.get(request, new EagerIncrementalInputStack(updatedTree, request.input), parser.observing);
+        IActiveStacks<IStackNode> activeStacks = activeStacksFactory.get(parser.observing);
+        IForActorStacks<IStackNode> forActorStacks = forActorStacksFactory.get(parser.observing);
+        return new IncrementalParseState<>(request,
+                new EagerIncrementalInputStack(updatedTree, request.input),
+                activeStacks,
+                forActorStacks);
     }
 
     protected void parseLoop(IncrementalParseState parseState) throws ParseException {
