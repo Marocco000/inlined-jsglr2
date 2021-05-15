@@ -95,6 +95,7 @@ public class InlinedIncrementalJSGLR2
         ImploderCache previousImploderCache = imploderCacheCache.get(cachingKey);
         TokensResult previousTokens = tokensCache.get(cachingKey);
 
+        // Parse
         ParseResult<IncrementalParseForest> parseResult = parse(request, previousInput, (IncrementalParseForest) previousParseForest);
 
         if(parseResult.isSuccess()) {
@@ -361,9 +362,9 @@ public class InlinedIncrementalJSGLR2
     }
 
 
-//    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IStackNode, IncrementalParseState> observing() {
-//        return parser.observing;
-//    }
+    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IStackNode, AbstractParseState<IIncrementalInputStack, IStackNode>> observing() {
+        return parser.observing;
+    }
 
     protected ParseResult<IncrementalParseForest> complete(IncrementalParseState parseState, IncrementalParseForest parseForest) {
         List<Message> messages = new ArrayList<>();
