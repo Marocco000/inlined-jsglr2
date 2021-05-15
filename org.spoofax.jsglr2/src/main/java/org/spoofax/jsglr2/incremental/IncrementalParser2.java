@@ -48,7 +48,7 @@ import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 
 public class IncrementalParser2
 // @formatter:off
-        <StackNode     extends IStackNode,
+                <StackNode     extends IStackNode,
                 ParseState    extends AbstractParseState<IIncrementalInputStack, StackNode> & IIncrementalParseState,
                 StackManager  extends AbstractStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState>,
                 ReduceManager extends org.spoofax.jsglr2.reducing.ReduceManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState>>
@@ -68,7 +68,7 @@ public class IncrementalParser2
     public final ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManager;
     public final ReduceManager reduceManager;
 //    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
-    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
+//    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
 
 
     public IncrementalParser2(
@@ -77,9 +77,10 @@ public class IncrementalParser2
                              StackManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState, StackManager> stackManagerFactory,
                              ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
 //                             Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator,
-                             ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
+                             ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory
 //                             ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
-                             ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory) {
+//                             ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory
+                                ) {
 
 //        super(null, null, parseTable, stackManagerFactory, parseForestManagerFactory, disambiguator,
 //                reduceManagerFactory, failureHandlerFactory, reporterFactory);
@@ -94,7 +95,7 @@ public class IncrementalParser2
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
 //        this.failureHandler = failureHandlerFactory.get(observing);
 //        this.failureHandler = new DefaultParseFailureHandler(observing);
-        this.reporter = reporterFactory.get(parseForestManager);
+//        this.reporter = reporterFactory.get(parseForestManager);
 
 //        this.incrementalInputStackFactory = incrementalInputStackFactory;
         // TODO parametrize parser on diff algorithm for benchmarking
@@ -175,7 +176,7 @@ public class IncrementalParser2
         if(cycleDetector.cycleDetected()) {
             return failure(new ParseFailure<>(parseState, cycleDetector.failureCause));
         } else {
-            reporter.report(parseState, parseForest, messages);
+            //reporter.report(parseState, parseForest, messages);
 
             // Generate errors for non-assoc or non-nested productions that are used associatively
             parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));

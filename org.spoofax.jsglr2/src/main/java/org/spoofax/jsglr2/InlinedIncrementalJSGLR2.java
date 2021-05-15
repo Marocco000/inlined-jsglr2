@@ -93,12 +93,13 @@ public class InlinedIncrementalJSGLR2
                         HybridStackManager.factory(),
                         IncrementalParseForestManager::new,
 //                        null,
-                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
+                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new)
 //                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
 //                                stackManager, parseForestManager, ReducerOptimized::new),
 
 //                        DefaultParseFailureHandler::new,
-                        EmptyParseReporter.factory());
+//                        EmptyParseReporter.factory()
+                                        );
 
         parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
@@ -422,7 +423,8 @@ public class InlinedIncrementalJSGLR2
         if(cycleDetector.cycleDetected()) {
             return failure(new ParseFailure<>(parseState, cycleDetector.failureCause));
         } else {
-            parser.reporter.report(parseState, parseForest, messages);
+            //todo: For recovery variant use recoveryParseReporter
+//            parser.reporter.report(parseState, parseForest, messages);
 
             // Generate errors for non-assoc or non-nested productions that are used associatively
             parser.parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
