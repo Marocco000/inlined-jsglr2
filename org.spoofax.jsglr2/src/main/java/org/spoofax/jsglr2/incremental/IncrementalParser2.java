@@ -32,6 +32,7 @@ import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.*;
+import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
 import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
@@ -43,6 +44,7 @@ import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
 import org.spoofax.jsglr2.stack.AbstractStackManager;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackManagerFactory;
+import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 
 public class IncrementalParser2
 // @formatter:off
@@ -65,7 +67,7 @@ public class IncrementalParser2
     public final StackManager stackManager;
     public final ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManager;
     public final ReduceManager reduceManager;
-    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
+//    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
     public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
 
 
@@ -76,7 +78,7 @@ public class IncrementalParser2
                              ParseForestManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> parseForestManagerFactory,
 //                             Disambiguator<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> disambiguator,
                              ReduceManagerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState, StackManager, ReduceManager> reduceManagerFactory,
-                             ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
+//                             ParseFailureHandlerFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, ParseState> failureHandlerFactory,
                              ParseReporterFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporterFactory) {
 
 //        super(null, null, parseTable, stackManagerFactory, parseForestManagerFactory, disambiguator,
@@ -87,9 +89,11 @@ public class IncrementalParser2
         this.parseStateFactory = parseStateFactory;
         this.parseTable = parseTable;
         this.stackManager = stackManagerFactory.get(observing);
+//        this.stackManager = new HybridStackManager<>(observing); TODO ??
         this.parseForestManager = parseForestManagerFactory.get(observing, null);
         this.reduceManager = reduceManagerFactory.get(parseTable, stackManager, parseForestManager);
-        this.failureHandler = failureHandlerFactory.get(observing);
+//        this.failureHandler = failureHandlerFactory.get(observing);
+//        this.failureHandler = new DefaultParseFailureHandler(observing);
         this.reporter = reporterFactory.get(parseForestManager);
 
 //        this.incrementalInputStackFactory = incrementalInputStackFactory;
@@ -116,7 +120,7 @@ public class IncrementalParser2
                 parseLoop(parseState);
 
                 if(parseState.acceptingStack == null)
-                    recover = failureHandler.onFailure(parseState);
+                    recover = false;
                 else
                     recover = false;
             } while(recover);
@@ -133,10 +137,20 @@ public class IncrementalParser2
                 else
                     return complete(parseState, parseForestWithStartSymbol);
             } else
-                return failure(parseState, failureHandler.failureCause(parseState));
+                return failure(parseState, failureCause(parseState));
         } catch(ParseException e) {
             return failure(parseState, e.cause);
         }
+    }
+
+    // TODO completely inline inside method
+    ParseFailureCause failureCause(ParseState parseState) {
+        Position position = parseState.inputStack.safePosition();
+
+        if(parseState.inputStack.offset() < parseState.inputStack.length())
+            return new ParseFailureCause(ParseFailureCause.Type.UnexpectedInput, position);
+        else
+            return new ParseFailureCause(ParseFailureCause.Type.UnexpectedEOF, position);
     }
 
     @Override public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {

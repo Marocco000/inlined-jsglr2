@@ -97,7 +97,7 @@ public class InlinedIncrementalJSGLR2
 //                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
 //                                stackManager, parseForestManager, ReducerOptimized::new),
 
-                        DefaultParseFailureHandler::new,
+//                        DefaultParseFailureHandler::new,
                         EmptyParseReporter.factory());
 
         parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
@@ -175,9 +175,9 @@ public class InlinedIncrementalJSGLR2
         try {
             do {
                 parseLoop(parseState);
-
+                // TODO: optimization remove if condition
                 if(parseState.acceptingStack == null)
-                    recover = parser.failureHandler.onFailure(parseState);
+                    recover = false;
                 else
                     recover = false;
             } while(recover);
@@ -193,8 +193,13 @@ public class InlinedIncrementalJSGLR2
                     return parser.failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
                 else
                     return parser.complete(parseState, parseForestWithStartSymbol);
-            } else
-                return parser.failure(parseState, parser.failureHandler.failureCause(parseState));
+            } else{
+                Position position = parseState.inputStack.safePosition();
+                if(parseState.inputStack.offset() < parseState.inputStack.length())
+                    return parser.failure(parseState, new ParseFailureCause(ParseFailureCause.Type.UnexpectedInput, position));
+                else
+                    return parser.failure(parseState, new ParseFailureCause(ParseFailureCause.Type.UnexpectedEOF, position));
+            }
         } catch(ParseException e) {
             return parser.failure(parseState, e.cause);
         }
@@ -445,6 +450,4 @@ public class InlinedIncrementalJSGLR2
 
         return failure;
     }
-
-
 }
