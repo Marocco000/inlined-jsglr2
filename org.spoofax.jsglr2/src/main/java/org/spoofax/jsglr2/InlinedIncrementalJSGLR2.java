@@ -1,5 +1,6 @@
 package org.spoofax.jsglr2;
 
+import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.ActionType;
 import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
@@ -10,24 +11,33 @@ import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.incremental.IncrementalParseState;
 import org.spoofax.jsglr2.incremental.IncrementalParser;
+import org.spoofax.jsglr2.incremental.IncrementalReduceManager;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.IInputStack;
+import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
+import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.*;
+import org.spoofax.jsglr2.parser.failure.DefaultParseFailureHandler;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.reducing.ReduceActionFilter;
+import org.spoofax.jsglr2.reducing.ReducerOptimized;
 import org.spoofax.jsglr2.stack.AbstractStackNode;
 import org.spoofax.jsglr2.stack.IStackNode;
+import org.spoofax.jsglr2.stack.collections.*;
+import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
 
 import java.util.ArrayList;
@@ -68,7 +78,31 @@ public class InlinedIncrementalJSGLR2
     ITokenizer<IntermediateResult, TokensResult> tokenizer;
 //    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> tokenizer;
 
-    InlinedIncrementalJSGLR2 (Parser parser){
+    InlinedIncrementalJSGLR2 (IParseTable parseTable){
+        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
+        IForActorStacksFactory forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
+
+        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
+                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
+
+        Parser parser = (Parser)
+                new IncrementalParser<>(
+                        incrementalInputStackFactory,
+                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
+                        parseTable,
+                        HybridStackManager.factory(),
+                        IncrementalParseForestManager::new,
+                        null,
+                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
+//                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
+//                                stackManager, parseForestManager, ReducerOptimized::new),
+
+                        DefaultParseFailureHandler::new,
+                        EmptyParseReporter.factory());
+
+        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
+
+
         this.parser = (IncrementalParser) parser;
         this.imploder = new IncrementalStrategoTermImploder();
         this.tokenizer = (ITokenizer<IntermediateResult, TokensResult>) new IncrementalTreeShapedTokenizer();

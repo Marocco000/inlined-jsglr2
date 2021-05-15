@@ -48,31 +48,31 @@ public class InlinedIncrementalJSGLR2Variant extends JSGLR2Variant {
     @Override
     public JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) {
 
-        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
-        IForActorStacksFactory forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
-
-        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
-                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
-
-        Parser parser = (Parser)
-
-                new IncrementalParser<>(
-                        incrementalInputStackFactory,
-                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
-                        parseTable,
-                        HybridStackManager.factory(),
-                        IncrementalParseForestManager::new,
-                        null,
-                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
-//                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
-//                                stackManager, parseForestManager, ReducerOptimized::new),
-
-                        DefaultParseFailureHandler::new,
-                        EmptyParseReporter.factory());
-
-        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
-
-        return new InlinedIncrementalJSGLR2(parser);
+//        IActiveStacksFactory activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
+//        IForActorStacksFactory forActorStacksFactory =  new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
+//
+//        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
+//                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
+//
+//        Parser parser = (Parser)
+//
+//                new IncrementalParser<>(
+//                        incrementalInputStackFactory,
+//                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
+//                        parseTable,
+//                        HybridStackManager.factory(),
+//                        IncrementalParseForestManager::new,
+//                        null,
+//                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new),
+////                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
+////                                stackManager, parseForestManager, ReducerOptimized::new),
+//
+//                        DefaultParseFailureHandler::new,
+//                        EmptyParseReporter.factory());
+//
+//        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
+//        return new InlinedIncrementalJSGLR2(parser);
+        return new InlinedIncrementalJSGLR2(parseTable);
 
     }
 
