@@ -6,6 +6,7 @@ import org.metaborg.parsetable.actions.IAction;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
@@ -58,11 +59,11 @@ import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReaso
 public class InlinedIncrementalJSGLR2
 // @formatter:off
         <ParseForest extends IParseForest,
-        IntermediateResult,
+//        IntermediateResult,
         ImploderCache,
         AbstractSyntaxTree,
-        ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>
-//        IncrementalTreeTokens extends ITokens
+        ImplodeResult extends IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, AbstractSyntaxTree>
+//        TreeTokens extends ITokens
         >
 // @formatter:on
         implements JSGLR2<AbstractSyntaxTree> {
@@ -73,7 +74,7 @@ public class InlinedIncrementalJSGLR2
 //    IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     IncrementalStrategoTermImploder imploder;
 
-    ITokenizer<IntermediateResult, IncrementalTreeTokens> tokenizer;
+    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> tokenizer;
 
     IActiveStacksFactory activeStacksFactory;
     IForActorStacksFactory forActorStacksFactory;
@@ -108,7 +109,7 @@ public class InlinedIncrementalJSGLR2
 
         this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder();
-        this.tokenizer = (ITokenizer<IntermediateResult, IncrementalTreeTokens>) new IncrementalTreeShapedTokenizer();
+        this.tokenizer =  new IncrementalTreeShapedTokenizer();
     }
 
     @Override public IParser parser() {
