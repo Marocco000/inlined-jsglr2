@@ -41,6 +41,7 @@ import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
+import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeTokens;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,13 +56,14 @@ import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReaso
 import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReason.IRREUSABLE;
 
 public class InlinedIncrementalJSGLR2
-        // @formatter:off
+// @formatter:off
         <ParseForest extends IParseForest,
-                IntermediateResult,
-                ImploderCache,
-                AbstractSyntaxTree,
-                ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>,
-                TokensResult extends ITokens>
+        IntermediateResult,
+        ImploderCache,
+        AbstractSyntaxTree,
+        ImplodeResult extends IImplodeResult<IntermediateResult, ImploderCache, AbstractSyntaxTree>
+//        IncrementalTreeTokens extends ITokens
+        >
 // @formatter:on
         implements JSGLR2<AbstractSyntaxTree> {
 
@@ -71,7 +73,7 @@ public class InlinedIncrementalJSGLR2
 //    IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     IncrementalStrategoTermImploder imploder;
 
-    ITokenizer<IntermediateResult, TokensResult> tokenizer;
+    ITokenizer<IntermediateResult, IncrementalTreeTokens> tokenizer;
 
     IActiveStacksFactory activeStacksFactory;
     IForActorStacksFactory forActorStacksFactory;
@@ -106,7 +108,7 @@ public class InlinedIncrementalJSGLR2
 
         this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder();
-        this.tokenizer = (ITokenizer<IntermediateResult, TokensResult>) new IncrementalTreeShapedTokenizer();
+        this.tokenizer = (ITokenizer<IntermediateResult, IncrementalTreeTokens>) new IncrementalTreeShapedTokenizer();
     }
 
     @Override public IParser parser() {
@@ -120,7 +122,7 @@ public class InlinedIncrementalJSGLR2
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, ParseForest> parseForestCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, ImploderCache> imploderCacheCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, TokensResult> tokensCache = new HashMap<>();
+    public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeTokens> tokensCache = new HashMap<>();
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
         JSGLR2Request.CachingKey cachingKey = request.isCacheable() ? request.cachingKey() : null;
@@ -128,7 +130,7 @@ public class InlinedIncrementalJSGLR2
         String previousInput = inputCache.get(cachingKey);
         ParseForest previousParseForest = parseForestCache.get(cachingKey);
         ImploderCache previousImploderCache = imploderCacheCache.get(cachingKey);
-        TokensResult previousTokens = tokensCache.get(cachingKey);
+        IncrementalTreeTokens previousTokens = tokensCache.get(cachingKey);
 
         // Parse
         ParseResult<IncrementalParseForest> parseResult = parse(request, previousInput, (IncrementalParseForest) previousParseForest);
@@ -138,7 +140,7 @@ public class InlinedIncrementalJSGLR2
 
             ImplodeResult implodeResult = (ImplodeResult) imploder.implode(request, parseForest, (IncrementalTreeImploder.ResultCache) previousImploderCache);
 
-            TokensResult tokens =
+            IncrementalTreeTokens tokens =
                     tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
 
             parseResult.postProcessMessages(tokens);
