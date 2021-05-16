@@ -60,9 +60,9 @@ public class InlinedIncrementalJSGLR2
 // @formatter:off
         <ParseForest extends IParseForest,
 //        IntermediateResult,
-        ImploderCache,
+//        ImploderCache,
         AbstractSyntaxTree,
-        ImplodeResult extends IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ImploderCache, AbstractSyntaxTree>
+        ImplodeResult extends IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm>, AbstractSyntaxTree>
 //        TreeTokens extends ITokens
         >
 // @formatter:on
@@ -122,7 +122,7 @@ public class InlinedIncrementalJSGLR2
 
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, ParseForest> parseForestCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, ImploderCache> imploderCacheCache = new HashMap<>();
+    public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm>> imploderCacheCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeTokens> tokensCache = new HashMap<>();
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
@@ -130,7 +130,7 @@ public class InlinedIncrementalJSGLR2
         // The "previous" values will be `null` if `cachingKey == null`
         String previousInput = inputCache.get(cachingKey);
         ParseForest previousParseForest = parseForestCache.get(cachingKey);
-        ImploderCache previousImploderCache = imploderCacheCache.get(cachingKey);
+        IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm> previousImploderCache = imploderCacheCache.get(cachingKey);
         IncrementalTreeTokens previousTokens = tokensCache.get(cachingKey);
 
         // Parse
