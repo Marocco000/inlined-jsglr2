@@ -58,11 +58,12 @@ import static org.spoofax.jsglr2.parser.observing.IParserObserver.BreakdownReaso
 
 public class InlinedIncrementalJSGLR2
 // @formatter:off
-        <ParseForest extends IParseForest,
+        <
+//        ParseForest extends IParseForest,
 //        IntermediateResult,
 //        ImploderCache,
         AbstractSyntaxTree,
-        ImplodeResult extends IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm>, AbstractSyntaxTree>
+        ImplodeResult extends IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, AbstractSyntaxTree>
 //        TreeTokens extends ITokens
         >
 // @formatter:on
@@ -121,23 +122,23 @@ public class InlinedIncrementalJSGLR2
     }
 
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, ParseForest> parseForestCache = new HashMap<>();
-    public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm>> imploderCacheCache = new HashMap<>();
+    public final HashMap<JSGLR2Request.CachingKey, IncrementalParseForest> parseForestCache = new HashMap<>();
+    public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>> imploderCacheCache = new HashMap<>();
     public final HashMap<JSGLR2Request.CachingKey, IncrementalTreeTokens> tokensCache = new HashMap<>();
 
     @Override public JSGLR2Result<AbstractSyntaxTree> parseResult(JSGLR2Request request) {
         JSGLR2Request.CachingKey cachingKey = request.isCacheable() ? request.cachingKey() : null;
         // The "previous" values will be `null` if `cachingKey == null`
         String previousInput = inputCache.get(cachingKey);
-        ParseForest previousParseForest = parseForestCache.get(cachingKey);
-        IncrementalTreeImploder.ResultCache<ParseForest, IStrategoTerm> previousImploderCache = imploderCacheCache.get(cachingKey);
+        IncrementalParseForest previousParseForest = parseForestCache.get(cachingKey);
+        IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> previousImploderCache = imploderCacheCache.get(cachingKey);
         IncrementalTreeTokens previousTokens = tokensCache.get(cachingKey);
 
         // Parse
         ParseResult<IncrementalParseForest> parseResult = parse(request, previousInput, (IncrementalParseForest) previousParseForest);
 
         if(parseResult.isSuccess()) {
-            ParseForest parseForest = ((ParseSuccess<ParseForest>) parseResult).parseResult;
+            IncrementalParseForest parseForest = ((ParseSuccess<IncrementalParseForest>) parseResult).parseResult;
 
             ImplodeResult implodeResult = (ImplodeResult) imploder.implode(request, parseForest, (IncrementalTreeImploder.ResultCache) previousImploderCache);
 
@@ -156,7 +157,7 @@ public class InlinedIncrementalJSGLR2
             return new JSGLR2Success<>(request, implodeResult.ast(), tokens, implodeResult.isAmbiguous(),
                     parseResult.messages);
         } else {
-            ParseFailure<ParseForest> failure = (ParseFailure<ParseForest>) parseResult;
+            ParseFailure<IncrementalParseForest> failure = (ParseFailure<IncrementalParseForest>) parseResult;
 
             return new JSGLR2Failure<>(request, failure, parseResult.messages);
         }
