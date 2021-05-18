@@ -16,11 +16,9 @@ import org.spoofax.jsglr2.incremental.IncrementalReduceManager;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
-import org.spoofax.jsglr2.inputstack.incremental.IncrementalInputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.*;
@@ -74,8 +72,8 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 //                        EagerIncrementalInputStack::new,
 //                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
                         parseTable,
-                        HybridStackManager.factory(),
-                        IncrementalParseForestManager::new,
+//                        HybridStackManager.factory(),
+//                        IncrementalParseForestManager::new,
 //                        null,
                         IncrementalReduceManager.factoryIncremental(ReducerOptimized::new)
 //                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
@@ -117,7 +115,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
         IncrementalTreeTokens previousTokens = tokensCache.get(cachingKey);
 
         // Parse
-        ParseResult<IncrementalParseForest> parseResult = parse(request, previousInput, (IncrementalParseForest) previousParseForest);
+        ParseResult<IncrementalParseForest> parseResult = parser.parse(request, previousInput, (IncrementalParseForest) previousParseForest);
 
         if (parseResult.isSuccess()) {
             IncrementalParseForest parseForest = ((ParseSuccess<IncrementalParseForest>) parseResult).parseResult;
@@ -227,7 +225,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 
         processForActorStacks(parseState);
 
-        shifter(parseState);
+        parser.shifter(parseState);
     }
 
     protected void processForActorStacks(IncrementalParseState parseState) {
@@ -244,33 +242,33 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
         }
     }
 
-    protected void shifter(IncrementalParseState parseState) {
-        parseState.activeStacks.clear();
-
-        IncrementalParseForest characterNode = parser.getNodeToShift(parseState);
-
-        parser.observing.notify(observer -> observer.shifter(characterNode, parseState.forShifter));
-
-//        for(ForShifterElement<StackNode> forShifterElement : parseState.forShifter) {
-        for (Object forShifterElement : parseState.forShifter) {
-            IStackNode gotoStack = parseState.activeStacks.findWithState(((ForShifterElement<IStackNode>) forShifterElement).state);
-
-            if (gotoStack != null) {
-                parser.stackManager.createStackLink(parseState, gotoStack, ((ForShifterElement<IStackNode>) forShifterElement).stack, characterNode);
-            } else {
-                gotoStack = parser.stackManager.createStackNode(((ForShifterElement<IStackNode>) forShifterElement).state);
-
-                parser.stackManager.createStackLink(parseState, gotoStack, ((ForShifterElement<IStackNode>) forShifterElement).stack, characterNode);
-
-                parseState.activeStacks.add(gotoStack);
-            }
-
-            IStackNode finalGotoStack = gotoStack;
-            parser.observing.notify(observer -> observer.shift(parseState, ((ForShifterElement<IStackNode>) forShifterElement).stack, finalGotoStack));
-        }
-
-        parseState.forShifter.clear();
-    }
+//    protected void shifter(IncrementalParseState parseState) {
+//        parseState.activeStacks.clear();
+//
+//        IncrementalParseForest characterNode = parser.getNodeToShift(parseState);
+//
+//        parser.observing.notify(observer -> observer.shifter(characterNode, parseState.forShifter));
+//
+////        for(ForShifterElement<StackNode> forShifterElement : parseState.forShifter) {
+//        for (Object forShifterElement : parseState.forShifter) {
+//            IStackNode gotoStack = parseState.activeStacks.findWithState(((ForShifterElement<IStackNode>) forShifterElement).state);
+//
+//            if (gotoStack != null) {
+//                parser.stackManager.createStackLink(parseState, gotoStack, ((ForShifterElement<IStackNode>) forShifterElement).stack, characterNode);
+//            } else {
+//                gotoStack = parser.stackManager.createStackNode(((ForShifterElement<IStackNode>) forShifterElement).state);
+//
+//                parser.stackManager.createStackLink(parseState, gotoStack, ((ForShifterElement<IStackNode>) forShifterElement).stack, characterNode);
+//
+//                parseState.activeStacks.add(gotoStack);
+//            }
+//
+//            IStackNode finalGotoStack = gotoStack;
+//            parser.observing.notify(observer -> observer.shift(parseState, ((ForShifterElement<IStackNode>) forShifterElement).stack, finalGotoStack));
+//        }
+//
+//        parseState.forShifter.clear();
+//    }
 
     protected void actor(IStackNode stack, IncrementalParseState parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);
