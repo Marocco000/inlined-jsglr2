@@ -222,7 +222,7 @@ public class JSGLR2Variant {
 //                    Reducing.Incremental,
 //                    false),
 //                ImploderVariant.RecursiveIncremental,
-//                TokenizerVariant.IncrementalTreeShaped))
+//                TokenizerVariant.IncrementalTreeShaped)),
 
         recoveryIncremental(
             new JSGLR2Variant(

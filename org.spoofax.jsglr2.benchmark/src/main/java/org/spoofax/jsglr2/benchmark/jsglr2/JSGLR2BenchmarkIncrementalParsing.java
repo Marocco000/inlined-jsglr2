@@ -16,7 +16,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
             String s = input.content[i];
             if(s == null)
                 return null;
-            return jsglr2.parser.parseUnsafe(s, null, prevString.get(input), prevParse.get(input));
+            return parser.parseUnsafe(s, null, prevString.get(input), prevParse.get(input));
         }
 
         String previousInput = null;
@@ -26,7 +26,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
             for(String content : uniqueInputs.get(input)) {
                 if(content == null)
                     continue;
-                bh.consume(previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
+                bh.consume(previousResult = parser.parseUnsafe(content, null, previousInput, previousResult));
                 previousInput = content;
             }
             return null;
@@ -36,7 +36,7 @@ public abstract class JSGLR2BenchmarkIncrementalParsing extends JSGLR2BenchmarkI
         for(String content : input.content) {
             if(content == null)
                 continue;
-            bh.consume(previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
+            bh.consume(previousResult = parser.parseUnsafe(content, null, previousInput, previousResult));
             previousInput = content;
         }
         return null;

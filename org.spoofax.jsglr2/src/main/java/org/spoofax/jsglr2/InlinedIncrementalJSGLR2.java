@@ -71,10 +71,7 @@ public class InlinedIncrementalJSGLR2
 
     IParseTable parseTable;
     public final IncrementalParser2 parser;
-
-//    IImploder<ParseForest, IntermediateResult, ImploderCache, AbstractSyntaxTree, ImplodeResult> imploder;
     IncrementalStrategoTermImploder imploder;
-
     ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> tokenizer;
 
     IActiveStacksFactory activeStacksFactory;
@@ -106,7 +103,6 @@ public class InlinedIncrementalJSGLR2
                                         );
 
         parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
-
 
         this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder();
