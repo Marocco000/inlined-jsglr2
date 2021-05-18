@@ -66,13 +66,13 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
         this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
         this.forActorStacksFactory = new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
 
-        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
-                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
+//        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
+//                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
 
         IncrementalParser2 parser =
                 new IncrementalParser2<>(
-//                        incrementalInputStackFactory,
-                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
+//                        EagerIncrementalInputStack::new,
+//                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
                         parseTable,
                         HybridStackManager.factory(),
                         IncrementalParseForestManager::new,
