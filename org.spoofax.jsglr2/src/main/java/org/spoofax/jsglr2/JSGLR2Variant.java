@@ -210,20 +210,20 @@ public class JSGLR2Variant {
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
-        incremental(
+        inlinedIncremental(
               new InlinedIncrementalJSGLR2Variant()),
-//            new JSGLR2Variant(
-//                new ParserVariant(
-//                    ActiveStacksRepresentation.standard(),
-//                    ForActorStacksRepresentation.standard(),
-//                    ParseForestRepresentation.Incremental,
-//                    ParseForestConstruction.standard(),
-//                    StackRepresentation.Hybrid,
-//                    Reducing.Incremental,
-//                    false),
-//                ImploderVariant.RecursiveIncremental,
-//                TokenizerVariant.IncrementalTreeShaped)),
-
+        incremental(
+                    new JSGLR2Variant(
+                        new ParserVariant(
+                            ActiveStacksRepresentation.standard(),
+                            ForActorStacksRepresentation.standard(),
+                            ParseForestRepresentation.Incremental,
+                            ParseForestConstruction.standard(),
+                            StackRepresentation.Hybrid,
+                            Reducing.Incremental,
+                            false),
+                        ImploderVariant.RecursiveIncremental,
+                        TokenizerVariant.IncrementalTreeShaped)),
         recoveryIncremental(
             new JSGLR2Variant(
                 new ParserVariant(
