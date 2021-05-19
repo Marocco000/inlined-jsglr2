@@ -82,8 +82,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 //                        DefaultParseFailureHandler::new,
 //                        EmptyParseReporter.factory()
                 );
-
-        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
+//        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
         this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder();

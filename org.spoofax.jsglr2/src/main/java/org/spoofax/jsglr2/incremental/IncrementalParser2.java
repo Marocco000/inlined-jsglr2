@@ -36,6 +36,7 @@ import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceActionFilter;
+import org.spoofax.jsglr2.reducing.Reducer;
 import org.spoofax.jsglr2.reducing.ReducerOptimized;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.*;
@@ -56,6 +57,11 @@ public class IncrementalParser2
     public final IncrementalReduceManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IIncrementalInputStack, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceManager;
 //    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
 //    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
+
+    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>>> reduceActionFilters;
+    public Reducer<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>,
+            EagerIncrementalInputStack, AbstractParseState<EagerIncrementalInputStack, HybridStackNode<IncrementalParseForest>>> reducerInternal;
+
     public IncrementalParser2(
 //                             ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, HybridStackNode<IncrementalParseForest>, ParseState> parseStateFactory,
             IParseTable parseTable
@@ -75,7 +81,11 @@ public class IncrementalParser2
         this.reduceManager = new IncrementalReduceManager<>
                 (parseTable, stackManager, parseForestManager, ReducerOptimized::new);//new ReducerOptimized(stackManager, parseForestManager));
         // reducer stuff
+        this.reduceActionFilters = new ArrayList<>();
+        reduceActionFilters.add(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
+//        this.reducerInternal = new Reducer<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>,
+//                EagerIncrementalInputStack, AbstractParseState<EagerIncrementalInputStack, HybridStackNode<IncrementalParseForest>>>(stackManager, parseForestManager);
 
 //        this.failureHandler = failureHandlerFactory.get(observing);
 //        this.failureHandler = new DefaultParseFailureHandler(observing);
@@ -316,7 +326,7 @@ public class IncrementalParser2
                 // do reduction
 //                reduceManager.doReductions(observing, parseState, stack, reduceAction);
                 boolean ignoreReduceAction = false;
-                for(ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceActionFilter : reduceManager.reduceActionFilters) {
+                for(ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceActionFilter : reduceActionFilters) {
                     if(reduceActionFilter.ignoreReduce(parseState, stack, reduceAction))
                         ignoreReduceAction =  true;
                 }
@@ -391,7 +401,7 @@ public class IncrementalParser2
 //                        reduceManager.doLimitedReductions(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
 
                         boolean ignoreReduceAction = false;
-                        for(ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceActionFilter : reduceManager.reduceActionFilters) {
+                        for(ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceActionFilter : reduceActionFilters) {
                             if(reduceActionFilter.ignoreReduce(parseState, activeStackForLimitedReductions, reduce))
                                 ignoreReduceAction =  true;
                         }
