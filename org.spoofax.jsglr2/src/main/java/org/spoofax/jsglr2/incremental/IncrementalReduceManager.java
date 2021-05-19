@@ -43,7 +43,7 @@ public class IncrementalReduceManager
             this.stackManager = stackManager;
             this.parseForestManager = parseForestManager;
             this.reduceActionFilters = new ArrayList<>();
-    //        this.reducer = reducerFactory.get(stackManager, parseForestManager);
+            this.reducer = reducerFactory.get(stackManager, parseForestManager);
             this.reducer = new Reducer<>(stackManager, parseForestManager);
         }
     }
@@ -66,8 +66,11 @@ public class IncrementalReduceManager
     }
 
     @Override protected void doReductionsHelper(
-        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing, ParseState parseState,
-        StackNode activeStack, IReduce reduce, StackLink<ParseForest, StackNode> throughLink) {
+        ParserObserving<ParseForest, Derivation, ParseNode, StackNode, ParseState> observing,
+        ParseState parseState,
+        StackNode activeStack,
+        IReduce reduce,
+        StackLink<ParseForest, StackNode> throughLink) {
 
         List<StackPath<ParseForest, StackNode>> paths = stackManager.findAllPathsOfLength(activeStack, reduce.arity());
 

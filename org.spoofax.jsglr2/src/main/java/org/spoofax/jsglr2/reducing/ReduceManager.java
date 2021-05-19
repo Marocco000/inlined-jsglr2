@@ -32,8 +32,8 @@ public class ReduceManager
     protected IParseTable parseTable;
     protected AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager;
     protected ParseForestManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> parseForestManager;
-    protected Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducer;
-    protected List<ReduceActionFilter<ParseForest, StackNode, ParseState>> reduceActionFilters;
+    public Reducer<ParseForest, Derivation, ParseNode, StackNode, InputStack, ParseState> reducer;
+    public List<ReduceActionFilter<ParseForest, StackNode, ParseState>> reduceActionFilters;
 
     public ReduceManager(IParseTable parseTable,
         AbstractStackManager<ParseForest, Derivation, ParseNode, StackNode, ParseState> stackManager,
