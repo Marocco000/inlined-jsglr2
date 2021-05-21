@@ -43,8 +43,8 @@ public class IncrementalReduceManager
             this.stackManager = stackManager;
             this.parseForestManager = parseForestManager;
             this.reduceActionFilters = new ArrayList<>();
-//            this.reducer = reducerFactory.get(stackManager, parseForestManager);
-            this.reducer = new Reducer<>(stackManager, parseForestManager);
+            this.reducer = reducerFactory.get(stackManager, parseForestManager);
+//            this.reducer = new Reducer<>(stackManager, parseForestManager);
         }
     }
 
