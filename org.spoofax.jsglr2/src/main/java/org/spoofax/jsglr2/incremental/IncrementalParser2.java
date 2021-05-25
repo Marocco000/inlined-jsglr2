@@ -20,9 +20,7 @@ import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
-import org.spoofax.jsglr2.incremental.diff.ProcessUpdates;
 import org.spoofax.jsglr2.incremental.parseforest.*;
-//import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager;
 import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.*;
@@ -33,10 +31,8 @@ import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceActionFilter;
-import org.spoofax.jsglr2.reducing.Reducer;
 import org.spoofax.jsglr2.stack.StackLink;
 import org.spoofax.jsglr2.stack.collections.*;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager2;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.stack.paths.StackPath;
@@ -44,21 +40,20 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     public final IStringDiff diff;
-//    public final ProcessUpdates<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> processUpdates;
+    //    public final ProcessUpdates<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> processUpdates;
     public final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing;
     public final IParseTable parseTable;
-    public final HybridStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> stackManager;
-//    public final HybridStackManager2 stackManager;
-    public final ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> parseForestManager;
-//    IncrementalParseForestManager<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> parseForestManager;
-//        public final IncrementalParseForestManager2 parseForestManager;
+
+    //    public final HybridStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> stackManager;
+    //    public final ParseForestManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> parseForestManager;
+    public final HybridStackManager2 stackManager;
+    public final IncrementalParseForestManager2 parseForestManager;
+
 //    public final IncrementalReduceManager2<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IIncrementalInputStack, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> reduceManager;
 //    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
 //    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
 
     public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>>> reduceActionFilters;
-    public Reducer<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>,
-            EagerIncrementalInputStack, AbstractParseState<EagerIncrementalInputStack, HybridStackNode<IncrementalParseForest>>> reducerInternal;
 
     public IncrementalParser2(
 //                             ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, HybridStackNode<IncrementalParseForest>, ParseState> parseStateFactory,
@@ -74,10 +69,11 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         this.observing = new ParserObserving<>();
 //        this.parseStateFactory = IncrementalParseState.factory(new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList), new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque));
         this.parseTable = parseTable;
-        this.stackManager = new HybridStackManager<>(observing);
-//        this.stackManager = new HybridStackManager2(observing);
-        this.parseForestManager = new IncrementalParseForestManager<>(observing, null);
-//        this.parseForestManager = new IncrementalParseForestManager2(observing);
+
+//        this.stackManager = new HybridStackManager<>(observing);
+//        this.parseForestManager = new IncrementalParseForestManager<>(observing, null);
+        this.stackManager = new HybridStackManager2(observing);
+        this.parseForestManager = new IncrementalParseForestManager2(observing);
 //        this.reduceManager = new IncrementalReduceManager2<>
 //                (parseTable, stackManager, parseForestManager, ReducerOptimized::new);
 
@@ -111,7 +107,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
         observing.notify(observer -> observer.parseStart(parseState));
 
-        HybridStackNode<IncrementalParseForest> initialStackNode = stackManager.createInitialStackNode(parseTable.getStartState());
+        HybridStackNode<IncrementalParseForest> initialStackNode = stackManager.createStackNode(parseTable.getStartState());
 
         parseState.activeStacks.add(initialStackNode);
 
@@ -601,7 +597,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
      * </ul>
      * <li>If the update is a deletion (a, b, ""): just delete everything in range [a, b>
      * </ul>
-     *
+     * <p>
      * The slightly reasonable assumption has been made that any two consecutive updates never "touch" each other
      * (meaning that first.end == second.start). This method will still work for two consecutive replacements, but no
      * guarantees are made for a consecutive insertion/deletion.
@@ -609,13 +605,13 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     public IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest previous,
                                                  List<EditorUpdate> editorUpdates) {
         // Optimization: if there are no changes: then just return the old tree
-        if(editorUpdates.size() == 0)
+        if (editorUpdates.size() == 0)
             return previous;
 
         // Optimization: if everything is deleted/replaced: then return a tree created from the inserted string
-        if(editorUpdates.size() == 1) {
+        if (editorUpdates.size() == 1) {
             EditorUpdate editorUpdate = editorUpdates.get(0);
-            if(editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width()) {
+            if (editorUpdate.deletedStart == 0 && editorUpdate.deletedEnd == previous.width()) {
                 return getParseNodeFromString(editorUpdate.inserted);
             }
         }
@@ -626,8 +622,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     private IncrementalParseForest processUpdates(String previousInput, IncrementalParseForest currentForest,
                                                   int currentOffset, LinkedList<EditorUpdate> updates) {
-        if(currentForest.isTerminal()) {
-            if(currentForest instanceof IncrementalSkippedNode) {
+        if (currentForest.isTerminal()) {
+            if (currentForest instanceof IncrementalSkippedNode) {
                 // First explicitly instantiate all skipped character nodes before applying updates
                 return processUpdates(previousInput,
                         getParseNodeFromString(
@@ -641,14 +637,14 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             EditorUpdate.Type type = update.getType();
 
             // If it is an insertion (there is nothing to delete, deletedStart == deletedEnd)
-            if(type == INSERTION) {
+            if (type == INSERTION) {
                 // If insert position is begin of string: prepend to first character
-                if(deletedStartOffset == 0 && currentOffset == deletedEndOffset) {
+                if (deletedStartOffset == 0 && currentOffset == deletedEndOffset) {
                     updates.removeFirst();
                     return newParseNodeFromChildren(getParseNodeFromString(inserted), currentForest);
                 }
                 // If insert position is NOT begin of string: append to current character
-                if(deletedStartOffset != 0 && currentOffset == deletedStartOffset - currentForest.width()) {
+                if (deletedStartOffset != 0 && currentOffset == deletedStartOffset - currentForest.width()) {
                     updates.removeFirst();
                     return newParseNodeFromChildren(currentForest, getParseNodeFromString(inserted));
                 }
@@ -656,14 +652,14 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 return currentForest;
             }
             // Replace first deleted character with the inserted string (if any)
-            if(type == REPLACEMENT && currentOffset == deletedStartOffset) {
-                if(currentOffset == deletedEndOffset - currentForest.width())
+            if (type == REPLACEMENT && currentOffset == deletedStartOffset) {
+                if (currentOffset == deletedEndOffset - currentForest.width())
                     updates.removeFirst();
                 return getParseNodeFromString(inserted);
             }
             // Else: delete all characters within deletion range
-            if(deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
-                if(currentOffset == deletedEndOffset - currentForest.width())
+            if (deletedStartOffset <= currentOffset && currentOffset < deletedEndOffset) {
+                if (currentOffset == deletedEndOffset - currentForest.width())
                     updates.removeFirst();
                 return null;
             }
@@ -673,13 +669,13 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         // Use a shallow copy of the current children, else the old children array will be modified
         IncrementalParseForest[] parseForests =
                 ((IncrementalParseNode) currentForest).getFirstDerivation().parseForests().clone();
-        for(int i = 0; i < parseForests.length; i++) {
-            if(updates.isEmpty())
+        for (int i = 0; i < parseForests.length; i++) {
+            if (updates.isEmpty())
                 break;
             // If the current subtree is after the previous to-be-deleted range: move to next update
-            if(currentOffset >= updates.getFirst().deletedEnd && currentOffset > 0)
+            if (currentOffset >= updates.getFirst().deletedEnd && currentOffset > 0)
                 updates.removeFirst();
-            if(updates.isEmpty())
+            if (updates.isEmpty())
                 break;
 
             EditorUpdate update = updates.getFirst();
@@ -692,15 +688,15 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             int nextOffset = currentOffset + parseForest.width(); // == start offset of right sibling subtree
 
             // Optimization: if current subtree starts exactly at deletedStart and it spans the subtree: replace it
-            if(type == REPLACEMENT && deletedStartOffset == currentOffset && nextOffset <= deletedEndOffset
+            if (type == REPLACEMENT && deletedStartOffset == currentOffset && nextOffset <= deletedEndOffset
                     // (also, it must be at least one character wide, else empty subtrees at the same position get replaced)
                     && currentOffset < nextOffset)
                 parseForests[i] = getParseNodeFromString(inserted);
                 // Optimization: if current subtree is a subrange within [deletedStart, deletedEnd]: delete it
-            else if(type == REPLACEMENT && deletedStartOffset <= currentOffset && nextOffset <= deletedEndOffset)
+            else if (type == REPLACEMENT && deletedStartOffset <= currentOffset && nextOffset <= deletedEndOffset)
                 parseForests[i] = null;
                 // If current subtree (partially) overlaps with the to-be-deleted range: recurse
-            else if(deletedStartOffset <= nextOffset && currentOffset <= deletedEndOffset)
+            else if (deletedStartOffset <= nextOffset && currentOffset <= deletedEndOffset)
                 parseForests[i] = processUpdates(previousInput, parseForest, currentOffset, updates);
 
             currentOffset = nextOffset;
@@ -711,19 +707,19 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     private IncrementalParseNode newParseNodeFromChildren(IncrementalParseForest... newChildren) {
         IncrementalParseForest[] filtered =
                 Arrays.stream(newChildren).filter(Objects::nonNull).toArray(IncrementalParseForest[]::new);
-        if(filtered.length == 0)
+        if (filtered.length == 0)
             return null;
-        return ((IncrementalParseForestManager<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>>)parseForestManager).createChangedParseNode(filtered);
+        return parseForestManager.createChangedParseNode(filtered);
     }
 
     public IncrementalParseNode getParseNodeFromString(String inputString) {
         int[] chars = inputString.codePoints().toArray();
-        IncrementalParseForest[] parseForests = ((IncrementalParseForestManager<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>>)parseForestManager).parseForestsArray(chars.length);
+        IncrementalParseForest[] parseForests = parseForestManager.parseForestsArray(chars.length);
 
-        for(int i = 0; i < chars.length; i++) {
-            parseForests[i] = ((IncrementalParseForestManager<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> )parseForestManager).createCharacterNode(chars[i]);
+        for (int i = 0; i < chars.length; i++) {
+            parseForests[i] = parseForestManager.createCharacterNode(chars[i]);
         }
-        return ((IncrementalParseForestManager<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>>)parseForestManager).createChangedParseNode(parseForests);
+        return parseForestManager.createChangedParseNode(parseForests);
     }
     // END PROCESS UPDATES METHODS
 }
