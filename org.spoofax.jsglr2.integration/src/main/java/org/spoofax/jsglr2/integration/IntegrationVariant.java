@@ -76,6 +76,7 @@ public class IntegrationVariant {
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.layoutSensitive.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.composite.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.incremental.variant),
+            new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.inlinedIncremental.variant),
 
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recovery.variant),
             new IntegrationVariant(new ParseTableVariant(), JSGLR2Variant.Preset.recoveryElkhound.variant),

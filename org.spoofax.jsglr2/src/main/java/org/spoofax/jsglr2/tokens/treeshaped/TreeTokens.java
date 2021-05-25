@@ -19,8 +19,8 @@ public class TreeTokens implements ITokens {
     private final String filename;
     private final String input;
 
-    final TreeToken startToken, endToken;
-    TokenTree tree;
+    public final TreeToken startToken, endToken;
+    public TokenTree tree;
 
     /**
      * <b>Note:</b> this operation is not commutative.

@@ -30,6 +30,7 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
+import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer2;
 import org.spoofax.jsglr2.tokens.treeshaped.TreeShapedTokenizer;
 
 public class JSGLR2Variant {
@@ -68,6 +69,8 @@ public class JSGLR2Variant {
                 return new TreeShapedTokenizer();
             case IncrementalTreeShaped:
                 return new IncrementalTreeShapedTokenizer();
+            case InlinedIncremental:
+                return new IncrementalTreeShapedTokenizer2();
             default:
             case Null:
                 throw new IllegalStateException();

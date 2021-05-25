@@ -15,22 +15,22 @@ import org.spoofax.jsglr2.parser.Position;
 
 public class TokenTree {
 
-    final IStrategoTerm tree;
-    final TreeToken token; // null for internal nodes
-    TokenTree parent;
-    final List<TokenTree> children;
+    public final IStrategoTerm tree;
+    public final TreeToken token; // null for internal nodes
+    public TokenTree parent;
+    public final List<TokenTree> children;
     final List<TokenTree> nonNullChildren;
-    final Position positionRange;
+    public final Position positionRange;
     /** The number of tokens in this tree */
     final int size;
-    final TreeToken leftToken;
-    final TreeToken rightToken;
-    final Collection<IToken> leftTokens;
+    public final TreeToken leftToken;
+    public final TreeToken rightToken;
+    public final Collection<IToken> leftTokens;
     final Collection<IToken> rightTokens;
     final boolean isAmbiguous;
 
     // The parameter `treeToken` can be null only when the width of the token is 0
-    protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TreeToken treeToken) {
+    public TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, TreeToken treeToken) {
         this.tree = tree == null ? null : tree.tree;
         this.leftToken = this.rightToken = this.token = treeToken;
         if(treeToken == null)
@@ -48,7 +48,7 @@ public class TokenTree {
         configure(tree);
     }
 
-    protected TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, List<TokenTree> children, TreeToken leftToken,
+    public TokenTree(TreeImploder.SubTree<IStrategoTerm> tree, List<TokenTree> children, TreeToken leftToken,
         TreeToken rightToken, Position positionRange) {
         this.tree = tree == null ? null : tree.tree;
         this.token = null;

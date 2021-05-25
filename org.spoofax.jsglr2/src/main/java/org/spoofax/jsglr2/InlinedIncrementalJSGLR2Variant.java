@@ -24,11 +24,16 @@ public class InlinedIncrementalJSGLR2Variant extends JSGLR2Variant {
                         Reducing.Incremental,
                         false),//true
                 ImploderVariant.RecursiveIncremental,
-                TokenizerVariant.IncrementalTreeShaped);//.Recursive
+                TokenizerVariant.InlinedIncremental);//.Recursive
     }
 
     @Override
     public JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) {
         return new InlinedIncrementalJSGLR2(parseTable);
     }
+
+//    @Override
+//    private ITokenizer<TreeImploder.SubTree<IStrategoTerm>, ?> getTokenizer() {
+//        return new IncrementalTreeShapedTokenizer2();
+//    }
 }
