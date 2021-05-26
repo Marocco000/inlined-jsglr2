@@ -23,7 +23,7 @@ public class InlinedIncrementalJSGLR2Variant extends JSGLR2Variant {
                         StackRepresentation.Hybrid,
                         Reducing.Incremental,
                         false),//true
-                ImploderVariant.RecursiveIncremental,
+                ImploderVariant.InlinedRecursiveIncremental,
                 TokenizerVariant.InlinedIncremental);//.Recursive
     }
 
