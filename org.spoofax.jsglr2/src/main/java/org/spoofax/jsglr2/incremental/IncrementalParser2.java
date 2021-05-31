@@ -25,6 +25,8 @@ import org.spoofax.jsglr2.inputstack.incremental.EagerIncrementalInputStack;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.*;
+import org.spoofax.jsglr2.parser.observing.IParserNotification;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
@@ -81,7 +83,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         this.reduceActionFilters = new ArrayList<>();
         reduceActionFilters.add(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
-//        this.failureHandler = failureHandlerFactory.get(observing);
+//        this.failureHandler = failureHandlerFactory.get(observing);d
 //        this.failureHandler = new DefaultParseFailureHandler(observing);
 //        this.reporter = reporterFactory.get(parseForestManager);
 
@@ -304,7 +306,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             // If lookahead has null yield and the production of lookahead matches the state of the GotoShift,
             // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
             if (lookaheadNode.width() == 0 && result.size() == 2 && reusable
-                    && nullReduceMatchesGotoShift(stack, (IReduce) result.get(0), (GotoShift) result.get(1))) {
+//                    && nullReduceMatchesGotoShift(stack, (IReduce) result.get(0), (GotoShift) result.get(1))
+                    && stack.state().getGotoId(((IReduce)result.get(0)).production().id()) == ((GotoShift) result.get(1)).shiftStateId()) {
                 result.remove(0); // Removes the unnecessary reduce action
             }
 
@@ -318,7 +321,12 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 IShift shiftAction = (IShift) action;
                 IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                addForShifter(parseState, stack, shiftState);
+                // add for shifter
+                ForShifterElement<HybridStackNode<IncrementalParseForest>> forShifterElement = new ForShifterElement<>(stack, shiftState);
+
+                observing.notify(observer1 -> observer1.addForShifter(forShifterElement));
+
+                parseState.forShifter.add(forShifterElement);
 
                 break;
             case REDUCE:
@@ -509,7 +517,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     public void shifter(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState) {
         parseState.activeStacks.clear();
 
-        IncrementalParseForest characterNode = getNodeToShift(parseState);
+        // get node to shift
+        IncrementalParseForest characterNode = parseState.inputStack.getNode();//getNodeToShift(parseState);
 
         observing.notify(observer -> observer.shifter(characterNode, parseState.forShifter));
 
@@ -536,21 +545,21 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     // If the lookahead has null yield, there are always at least two valid actions:
     // Either reduce a production with arity 0, or shift the already-existing null-yield subtree.
     // This method returns whether the Goto state of the Reduce action matches the state of the GotoShift action.
-    private boolean nullReduceMatchesGotoShift(HybridStackNode<IncrementalParseForest> stack, IReduce reduceAction, GotoShift gotoShiftAction) {
-        return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
-    }
+//    private boolean nullReduceMatchesGotoShift(HybridStackNode<IncrementalParseForest> stack, IReduce reduceAction, GotoShift gotoShiftAction) {
+//        return stack.state().getGotoId(reduceAction.production().id()) == gotoShiftAction.shiftStateId();
+//    }
 
-    public IncrementalParseForest getNodeToShift(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState) {
-        return parseState.inputStack.getNode();
-    }
+//    public IncrementalParseForest getNodeToShift(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState) {
+//        return parseState.inputStack.getNode();
+//    }
 
-    public void addForShifter(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, HybridStackNode<IncrementalParseForest> stack, IState shiftState) {
-        ForShifterElement<HybridStackNode<IncrementalParseForest>> forShifterElement = new ForShifterElement<>(stack, shiftState);
-
-        observing.notify(observer -> observer.addForShifter(forShifterElement));
-
-        parseState.forShifter.add(forShifterElement);
-    }
+//    public void addForShifter(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, HybridStackNode<IncrementalParseForest> stack, IState shiftState) {
+//        ForShifterElement<HybridStackNode<IncrementalParseForest>> forShifterElement = new ForShifterElement<>(stack, shiftState);
+//
+//        observing.notify(observer -> observer.addForShifter(forShifterElement));
+//
+//        parseState.forShifter.add(forShifterElement);
+//    }
 
     public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing() {
         return observing;
