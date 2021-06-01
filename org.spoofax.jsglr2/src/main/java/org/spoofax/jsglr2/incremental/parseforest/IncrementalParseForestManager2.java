@@ -10,24 +10,23 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.incremental.IncrementalParseState;
+import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class IncrementalParseForestManager2 {
-    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing;
+    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
 
     public IncrementalParseForestManager2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing) {
+            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
         this.observing = observing;
     }
 
-    public IncrementalParseNode createParseNode(IncrementalParseState<HybridStackNode2> parseState, IStackNode stack,
+    public IncrementalParseNode createParseNode(IncrementalParseState2 parseState, IStackNode stack,
                                                 IProduction production, IncrementalDerivation firstDerivation) {
 
         IState state = parseState.newParseNodesAreReusable() ? stack.state() : NO_STATE;
@@ -49,7 +48,7 @@ public class IncrementalParseForestManager2 {
         return parseNode;
     }
 
-    public IncrementalDerivation createDerivation(IncrementalParseState<HybridStackNode2> parseState, IStackNode stack,
+    public IncrementalDerivation createDerivation(IncrementalParseState2 parseState, IStackNode stack,
                                                   IProduction production, ProductionType productionType, IncrementalParseForest[] parseForests) {
 
         IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests);
@@ -59,7 +58,7 @@ public class IncrementalParseForestManager2 {
         return derivation;
     }
 
-    public void addDerivation(IncrementalParseState<HybridStackNode2> parseState, IncrementalParseNode parseNode,
+    public void addDerivation(IncrementalParseState2 parseState, IncrementalParseNode parseNode,
                               IncrementalDerivation derivation) {
 
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
@@ -68,7 +67,7 @@ public class IncrementalParseForestManager2 {
 
     }
 
-    public IncrementalSkippedNode createSkippedNode(IncrementalParseState<HybridStackNode2> parseState, IProduction production,
+    public IncrementalSkippedNode createSkippedNode(IncrementalParseState2 parseState, IProduction production,
                                                     IncrementalParseForest[] parseForests) {
         return new IncrementalSkippedNode(production, parseForests);
     }
@@ -85,7 +84,7 @@ public class IncrementalParseForestManager2 {
         return new IncrementalParseForest[length];
     }
 
-    public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol, IncrementalParseState<HybridStackNode2> parseState) {
+    public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol, IncrementalParseState2 parseState) {
         IncrementalParseNode topNode = (IncrementalParseNode) parseForest;
         List<IncrementalDerivation> derivationsWithStartSymbol = new ArrayList<>();
 
@@ -206,7 +205,7 @@ public class IncrementalParseForestManager2 {
     }
 
     public static SourceRegion visitRegion(String inputString, Position startPosition, Position endPosition) {
-        if(endPosition.offset > startPosition.offset)
+        if (endPosition.offset > startPosition.offset)
             endPosition = endPosition.previous(inputString);
 
         return new SourceRegion(startPosition, endPosition);

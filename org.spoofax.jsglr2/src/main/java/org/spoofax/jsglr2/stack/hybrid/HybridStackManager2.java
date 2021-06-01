@@ -1,7 +1,7 @@
 package org.spoofax.jsglr2.stack.hybrid;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.incremental.IncrementalParseState;
+import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager2;
@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HybridStackManager2 {
-    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing;
+    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
 
 
     public HybridStackManager2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing) {
+            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
         this.observing = observing;
     }
 
@@ -45,12 +45,12 @@ public class HybridStackManager2 {
         return newStackNode;
     }
 
-    public StackLink2 createStackLink(IncrementalParseState<HybridStackNode2> parseState,
+    public StackLink2 createStackLink(IncrementalParseState2 parseState,
                                       HybridStackNode2 from,
                                       HybridStackNode2 to,
                                       IncrementalParseForest parseForest) {
         // add link
-        StackLink2 link = new StackLink2( from, to, parseForest);
+        StackLink2 link = new StackLink2(from, to, parseForest);
 
         from.addLink(link);
 
@@ -109,7 +109,7 @@ public class HybridStackManager2 {
         }
     }
 
-    public IncrementalParseForest[] getParseForests( IncrementalParseForestManager2 parseForestManager,
+    public IncrementalParseForest[] getParseForests(IncrementalParseForestManager2 parseForestManager,
 //            ParseForestManager<IncrementalParseForest, ?, ?, ?, ?> parseForestManager,
                                                     StackPath2 pathBegin) {
         IncrementalParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);

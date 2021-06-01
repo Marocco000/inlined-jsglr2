@@ -43,7 +43,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     public final IStringDiff diff;
     //    public final ProcessUpdates<HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> processUpdates;
-    public final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing;
+    public final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
     public final IParseTable parseTable;
 
     //    public final HybridStackManager<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> stackManager;
@@ -55,7 +55,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
 //    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
 
-    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState<HybridStackNode2>>> reduceActionFilters;
+    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2>> reduceActionFilters;
 
     public IncrementalParser2(
 //                             ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, HybridStackNode<IncrementalParseForest>, ParseState> parseStateFactory,
@@ -101,7 +101,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 ? processUpdates(previousInput, previousResult, diff.diff(previousInput, request.input))
                 : getParseNodeFromString(request.input);
 
-        IncrementalParseState<HybridStackNode2> parseState = new IncrementalParseState<>(request,
+        IncrementalParseState2 parseState = new IncrementalParseState2(request,
                 new EagerIncrementalInputStack(updatedTree, request.input),
                 new ActiveStacksArrayList<>(observing),
                 new ForActorStacksArrayDeque<>(observing));
@@ -161,7 +161,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 (ParseNodeVisitor<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode>) visitor);
     }
 
-    public ParseResult<IncrementalParseForest> complete(IncrementalParseState<HybridStackNode2> parseState, IncrementalParseForest parseForest) {
+    public ParseResult<IncrementalParseForest> complete(IncrementalParseState2 parseState, IncrementalParseForest parseForest) {
         List<Message> messages = new ArrayList<>();
         CycleDetector<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode> cycleDetector = new CycleDetector<>(messages);
 
@@ -189,7 +189,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         }
     }
 
-    public ParseFailure<IncrementalParseForest> failure(IncrementalParseState<HybridStackNode2> parseState, ParseFailureCause failureCause) {
+    public ParseFailure<IncrementalParseForest> failure(IncrementalParseState2 parseState, ParseFailureCause failureCause) {
         return failure(new ParseFailure<>(parseState, failureCause));
     }
 
@@ -209,7 +209,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //        }
 //    }
 
-    public void parseCharacter(IncrementalParseState<HybridStackNode2> parseState) throws ParseException {
+    public void parseCharacter(IncrementalParseState2 parseState) throws ParseException {
         parseState.nextParseRound(observing);
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);
@@ -221,7 +221,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         shifter(parseState);
     }
 
-    public void processForActorStacks(IncrementalParseState<HybridStackNode2> parseState) {
+    public void processForActorStacks(IncrementalParseState2 parseState) {
         while (parseState.forActorStacks.nonEmpty()) {
             HybridStackNode2 stack = parseState.forActorStacks.remove();
 
@@ -235,7 +235,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     }
 
 
-    public void actor(HybridStackNode2 stack, IncrementalParseState<HybridStackNode2> parseState) {
+    public void actor(HybridStackNode2 stack, IncrementalParseState2 parseState) {
         Iterable<IAction> actions = getActions(stack, parseState);
         // Break down the lookahead in either of the following scenarios:
         // - The lookahead is not reusable (terminal nodes are always reusable).
@@ -271,7 +271,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     // Inside this method, we can assume that the lookahead is a valid and complete subtree of the previous parse.
     // Else, the loop in `actor` will have broken it down
-    private Iterable<IAction> getActions(HybridStackNode2 stack, IncrementalParseState<HybridStackNode2> parseState) {
+    private Iterable<IAction> getActions(HybridStackNode2 stack, IncrementalParseState2 parseState) {
         // Get actions based on the lookahead terminal that `parse` will calculate in actionQueryCharacter
         Iterable<IAction> actions = stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
@@ -307,7 +307,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             // there is a duplicate action that can be removed (this is an optimization to avoid multipleStates == true)
             if (lookaheadNode.width() == 0 && result.size() == 2 && reusable
 //                    && nullReduceMatchesGotoShift(stack, (IReduce) result.get(0), (GotoShift) result.get(1))
-                    && stack.state().getGotoId(((IReduce)result.get(0)).production().id()) == ((GotoShift) result.get(1)).shiftStateId()) {
+                    && stack.state().getGotoId(((IReduce) result.get(0)).production().id()) == ((GotoShift) result.get(1)).shiftStateId()) {
                 result.remove(0); // Removes the unnecessary reduce action
             }
 
@@ -315,7 +315,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         }
     }
 
-    public void actor(HybridStackNode2 stack, IncrementalParseState<HybridStackNode2> parseState, IAction action) {
+    public void actor(HybridStackNode2 stack, IncrementalParseState2 parseState, IAction action) {
         switch (action.actionType()) {
             case SHIFT:
                 IShift shiftAction = (IShift) action;
@@ -335,7 +335,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 // do reduction
 //                reduceManager.doReductions(observing, parseState, stack, reduceAction);
                 boolean ignoreReduceAction = false;
-                for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState<HybridStackNode2>> reduceActionFilter : reduceActionFilters) {
+                for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2> reduceActionFilter : reduceActionFilters) {
                     if (reduceActionFilter.ignoreReduce(parseState, stack, reduceAction))
                         ignoreReduceAction = true;
                 }
@@ -380,8 +380,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
      */
     // keep as is
     public void reducer(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing,
-            IncrementalParseState<HybridStackNode2> parseState,
+            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing,
+            IncrementalParseState2 parseState,
             HybridStackNode2 activeStack,
             HybridStackNode2 originStack, IReduce reduce,
             IncrementalParseForest[] parseForests) {
@@ -444,7 +444,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //                        reduceManager.doLimitedReductions(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
 
                         boolean ignoreReduceAction = false;
-                        for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState<HybridStackNode2>> reduceActionFilter : reduceActionFilters) {
+                        for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2> reduceActionFilter : reduceActionFilters) {
                             if (reduceActionFilter.ignoreReduce(parseState, activeStackForLimitedReductions, reduce))
                                 ignoreReduceAction = true;
                         }
@@ -514,7 +514,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 observer -> observer.reducer(parseState, activeStack, originStack, reduce, parseForests, finalGotoStack));
     }
 
-    public void shifter(IncrementalParseState<HybridStackNode2> parseState) {
+    public void shifter(IncrementalParseState2 parseState) {
         parseState.activeStacks.clear();
 
         // get node to shift
@@ -561,7 +561,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //        parseState.forShifter.add(forShifterElement);
 //    }
 
-    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing() {
+    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing() {
         return observing;
     }
 
@@ -815,11 +815,11 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     // END PROCESS UPDATES METHODS
 
     // PARSER OBSERVING METHODS
-    public void notify(IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> notification) {
-        if(observing.observers.isEmpty())
+    public void notify(IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> notification) {
+        if (observing.observers.isEmpty())
             return;
 
-        for(IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observer : observing.observers)
+        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer : observing.observers)
             notification.notify(observer);
     }
 
