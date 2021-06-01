@@ -33,12 +33,10 @@ import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.reducing.ReduceActionFilter;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager2;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
-import org.spoofax.jsglr2.stack.paths.StackPath;
 import org.spoofax.jsglr2.stack.paths.StackPath2;
 
 public class IncrementalParser2 implements IParser<IncrementalParseForest> {
@@ -393,7 +391,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         HybridStackNode2 gotoStack = parseState.activeStacks.findWithState(gotoState);
 
         if (gotoStack != null) {
-            StackLink<IncrementalParseForest, HybridStackNode2> directLink = stackManager.findDirectLink(gotoStack, originStack);
+            StackLink2 directLink = stackManager.findDirectLink(gotoStack, originStack);
 
             observing.notify(observer -> observer.directLinkFound(parseState, directLink));
 
@@ -412,7 +410,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 }
             } else {
                 // reducer Existing Stack without direct link
-                StackLink<IncrementalParseForest, HybridStackNode2> newDirectLinkToActiveStateWithGoto;
+                StackLink2 newDirectLinkToActiveStateWithGoto;
 
                 if (reduce.isRejectProduction()) {
                     newDirectLinkToActiveStateWithGoto =
@@ -437,7 +435,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                             stackManager.createStackLink(parseState, gotoStack, originStack, parseNode);
                 }
 
-                StackLink<IncrementalParseForest, HybridStackNode2> link = newDirectLinkToActiveStateWithGoto;
+                StackLink2 link = newDirectLinkToActiveStateWithGoto;
 
                 for (HybridStackNode2 activeStackForLimitedReductions : parseState.activeStacks
                         .forLimitedReductions(parseState.forActorStacks)) {
@@ -482,7 +480,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             // reducer no existing stack
             HybridStackNode2 newStackWithGotoState = stackManager.createStackNode(gotoState);
 
-            StackLink<IncrementalParseForest, HybridStackNode2> link;
+            StackLink2 link;
 
             if (reduce.isRejectProduction()) {
                 link = stackManager.createStackLink(parseState, newStackWithGotoState, originStack,

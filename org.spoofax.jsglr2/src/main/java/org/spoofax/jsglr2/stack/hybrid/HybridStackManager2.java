@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.paths.*;
 
 import java.util.ArrayList;
@@ -45,12 +45,12 @@ public class HybridStackManager2 {
         return newStackNode;
     }
 
-    public StackLink<IncrementalParseForest, HybridStackNode2> createStackLink(IncrementalParseState<HybridStackNode2> parseState,
-                                                                                                      HybridStackNode2 from,
-                                                                                                      HybridStackNode2 to,
-                                                                                                      IncrementalParseForest parseForest) {
+    public StackLink2 createStackLink(IncrementalParseState<HybridStackNode2> parseState,
+                                      HybridStackNode2 from,
+                                      HybridStackNode2 to,
+                                      IncrementalParseForest parseForest) {
         // add link
-        StackLink<IncrementalParseForest, HybridStackNode2> link = new StackLink<>( from, to, parseForest);
+        StackLink2 link = new StackLink2( from, to, parseForest);
 
         from.addLink(link);
 
@@ -61,19 +61,19 @@ public class HybridStackManager2 {
         return link;
     }
 
-    protected Iterable<StackLink<IncrementalParseForest, HybridStackNode2>> stackLinksOut(HybridStackNode2 stack) {
+    protected Iterable<StackLink2> stackLinksOut(HybridStackNode2 stack) {
         return stack.getLinks();
     }
 
 
-    public void rejectStackLink(StackLink<IncrementalParseForest, HybridStackNode2> link) {
+    public void rejectStackLink(StackLink2 link) {
         link.reject();
 
         observing.notify(observer -> observer.rejectStackLink(link));
     }
 
-    public StackLink<IncrementalParseForest, HybridStackNode2> findDirectLink(HybridStackNode2 from, HybridStackNode2 to) {
-        for (StackLink<IncrementalParseForest, HybridStackNode2> link : stackLinksOut(from)) {
+    public StackLink2 findDirectLink(HybridStackNode2 from, HybridStackNode2 to) {
+        for (StackLink2 link : stackLinksOut(from)) {
             if (link.to == to)
                 return link;
         }
@@ -99,7 +99,7 @@ public class HybridStackManager2 {
         else {
             HybridStackNode2 lastStackNode = path.head();
 
-            for (StackLink<IncrementalParseForest, HybridStackNode2> linkOut : stackLinksOut(lastStackNode)) {
+            for (StackLink2 linkOut : stackLinksOut(lastStackNode)) {
                 if (!linkOut.isRejected()) {
                     StackPath2 extendedPath = new NonEmptyStackPath2(linkOut, path);
 

@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridStackNode2
-//        extends AbstractStackNode<IncrementalParseForest, HybridStackNode2> {
         implements IStackNode {
 
-    private StackLink<IncrementalParseForest, HybridStackNode2> firstLink;
-    private ArrayList<StackLink<IncrementalParseForest, HybridStackNode2>> otherLinks;
+    private StackLink2 firstLink;
+    private ArrayList<StackLink2> otherLinks;
 
     public final IState state;
 
@@ -22,7 +20,7 @@ public class HybridStackNode2
         this.state = state;
     }
 
-    public Iterable<StackLink<IncrementalParseForest, HybridStackNode2>> getLinks() {
+    public Iterable<StackLink2> getLinks() {
         if(otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
@@ -30,8 +28,8 @@ public class HybridStackNode2
         }
     }
 
-    public StackLink<IncrementalParseForest, HybridStackNode2>
-    addLink(StackLink<IncrementalParseForest, HybridStackNode2> link) {
+    public StackLink2
+    addLink(StackLink2 link) {
         if(firstLink == null)
             firstLink = link;
         else {
@@ -51,7 +49,7 @@ public class HybridStackNode2
         if(otherLinks == null)
             return true;
 
-        for(StackLink<IncrementalParseForest, HybridStackNode2> link : otherLinks) {
+        for(StackLink2 link : otherLinks) {
             if(!link.isRejected())
                 return false;
         }

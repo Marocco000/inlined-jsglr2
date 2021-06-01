@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.stack.paths;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class EmptyStackPath2
@@ -22,7 +21,7 @@ public class EmptyStackPath2
         return this.stackNode;
     }
 
-    @Override public boolean contains(StackLink<IncrementalParseForest, HybridStackNode2> link) {
+    @Override public boolean contains(StackLink2 link) {
         return false;
     }
 

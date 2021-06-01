@@ -1,11 +1,9 @@
 package org.spoofax.jsglr2.stack.paths;
 
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public abstract class StackPath2 {
-//        <ParseForest, StackNode extends IStackNode> {
 
     public final int length;
 
@@ -17,6 +15,6 @@ public abstract class StackPath2 {
 
     public abstract HybridStackNode2 head();
 
-    public abstract boolean contains(StackLink<IncrementalParseForest, HybridStackNode2> link);
+    public abstract boolean contains(StackLink2 link);
 
 }

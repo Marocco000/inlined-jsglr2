@@ -18,6 +18,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public interface IParserObserver
@@ -51,10 +52,15 @@ public interface IParserObserver
     default void createStackLink(StackLink<ParseForest, StackNode> link) {
     }
 
+    default void createStackLink(StackLink2 link) {
+    }
+
     default void resetDeterministicDepth(AbstractElkhoundStackNode<ParseForest> stack) {
     }
 
     default void rejectStackLink(StackLink<ParseForest, StackNode> link) {
+    }
+    default void rejectStackLink(StackLink2 link) {
     }
 
     default void forActorStacks(IForActorStacks<StackNode> forActorStacks) {
@@ -106,6 +112,10 @@ public interface IParserObserver
         StackLink<ParseForest, StackNode> link) {
     }
 
+    default void doLimitedReductions(ParseState parseState, StackNode stack, IReduce reduce,
+                                     StackLink2 link) {
+    }
+
     default void reducer(ParseState parseState, StackNode activeStack, StackNode originStack, IReduce reduce,
         ParseForest[] parseNodes, StackNode gotoStack) {
     }
@@ -114,6 +124,9 @@ public interface IParserObserver
     }
 
     default void directLinkFound(ParseState parseState, StackLink<ParseForest, StackNode> directLink) {
+    }
+
+    default void directLinkFound(ParseState parseState, StackLink2 directLink) {
     }
 
     default void accept(StackNode acceptingStack) {
