@@ -26,14 +26,14 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
     //    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> tokenizer;
     IncrementalTreeShapedTokenizer2 tokenizer;
 
-    IActiveStacksFactory activeStacksFactory;
-    IForActorStacksFactory forActorStacksFactory;
+//    IActiveStacksFactory activeStacksFactory;
+//    IForActorStacksFactory forActorStacksFactory;
 
     InlinedIncrementalJSGLR2(IParseTable parseTable) {
         this.parseTable = parseTable;
 
-        this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
-        this.forActorStacksFactory = new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
+//        this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
+//        this.forActorStacksFactory = new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
 
 //        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
 //                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
@@ -67,7 +67,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 
     @Override
     public void attachObserver(IParserObserver observer) {
-        parser.observing().attachObserver(observer);
+        parser.observing.attachObserver(observer);
     }
 
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();

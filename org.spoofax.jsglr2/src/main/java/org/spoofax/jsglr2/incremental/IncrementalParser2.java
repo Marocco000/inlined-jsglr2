@@ -103,7 +103,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
         IncrementalParseState2 parseState = new IncrementalParseState2(request,
                 new EagerIncrementalInputStack(updatedTree, request.input),
-                new ActiveStacksArrayList<>(observing),
+                new ActiveStacksArrayList2(observing),
                 new ForActorStacksArrayDeque<>(observing));
 
 
@@ -561,9 +561,9 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //        parseState.forShifter.add(forShifterElement);
 //    }
 
-    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing() {
-        return observing;
-    }
+//    public ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing() {
+//        return observing;
+//    }
 
 
     //REDUCER OPTIMIZED METHODS Incremental
