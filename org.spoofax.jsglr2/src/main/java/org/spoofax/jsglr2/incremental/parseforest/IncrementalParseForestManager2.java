@@ -17,16 +17,17 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
+import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class IncrementalParseForestManager2 {
-    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing;
+    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing;
 
     public IncrementalParseForestManager2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing) {
+            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing) {
         this.observing = observing;
     }
 
-    public IncrementalParseNode createParseNode(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, IStackNode stack,
+    public IncrementalParseNode createParseNode(IncrementalParseState<HybridStackNode2> parseState, IStackNode stack,
                                                 IProduction production, IncrementalDerivation firstDerivation) {
 
         IState state = parseState.newParseNodesAreReusable() ? stack.state() : NO_STATE;
@@ -48,7 +49,7 @@ public class IncrementalParseForestManager2 {
         return parseNode;
     }
 
-    public IncrementalDerivation createDerivation(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, IStackNode stack,
+    public IncrementalDerivation createDerivation(IncrementalParseState<HybridStackNode2> parseState, IStackNode stack,
                                                   IProduction production, ProductionType productionType, IncrementalParseForest[] parseForests) {
 
         IncrementalDerivation derivation = new IncrementalDerivation(production, productionType, parseForests);
@@ -58,7 +59,7 @@ public class IncrementalParseForestManager2 {
         return derivation;
     }
 
-    public void addDerivation(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, IncrementalParseNode parseNode,
+    public void addDerivation(IncrementalParseState<HybridStackNode2> parseState, IncrementalParseNode parseNode,
                               IncrementalDerivation derivation) {
 
         observing.notify(observer -> observer.addDerivation(parseNode, derivation));
@@ -67,7 +68,7 @@ public class IncrementalParseForestManager2 {
 
     }
 
-    public IncrementalSkippedNode createSkippedNode(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState, IProduction production,
+    public IncrementalSkippedNode createSkippedNode(IncrementalParseState<HybridStackNode2> parseState, IProduction production,
                                                     IncrementalParseForest[] parseForests) {
         return new IncrementalSkippedNode(production, parseForests);
     }
@@ -84,7 +85,7 @@ public class IncrementalParseForestManager2 {
         return new IncrementalParseForest[length];
     }
 
-    public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol, IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState) {
+    public IncrementalParseForest filterStartSymbol(IncrementalParseForest parseForest, String startSymbol, IncrementalParseState<HybridStackNode2> parseState) {
         IncrementalParseNode topNode = (IncrementalParseNode) parseForest;
         List<IncrementalDerivation> derivationsWithStartSymbol = new ArrayList<>();
 

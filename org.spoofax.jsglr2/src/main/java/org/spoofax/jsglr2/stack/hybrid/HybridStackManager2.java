@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HybridStackManager2 {
-    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing;
+    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing;
 
 
     public HybridStackManager2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode<IncrementalParseForest>, IncrementalParseState<HybridStackNode<IncrementalParseForest>>> observing) {
+            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState<HybridStackNode2>> observing) {
         this.observing = observing;
     }
 
@@ -39,38 +39,43 @@ public class HybridStackManager2 {
     /*
     Create stack node. Could also be a  initial stack node.
      */
-    public HybridStackNode<IncrementalParseForest> createStackNode(IState state) {
-        HybridStackNode<IncrementalParseForest> newStackNode = new HybridStackNode<>(state);
+    public HybridStackNode2 createStackNode(IState state) {
+        HybridStackNode2 newStackNode = new HybridStackNode2(state);
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
 
-    public StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> createStackLink(IncrementalParseState<HybridStackNode<IncrementalParseForest>> parseState,
-                                                                                                      HybridStackNode<IncrementalParseForest> from,
-                                                                                                      HybridStackNode<IncrementalParseForest> to,
+    public StackLink<IncrementalParseForest, HybridStackNode2> createStackLink(IncrementalParseState<HybridStackNode2> parseState,
+                                                                                                      HybridStackNode2 from,
+                                                                                                      HybridStackNode2 to,
                                                                                                       IncrementalParseForest parseForest) {
-        StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> link = from.addLink(to, parseForest);
+        // add link
+        StackLink<IncrementalParseForest, HybridStackNode2> link = new StackLink<>( from, to, parseForest);
+
+        from.addLink(link);
+
+        //StackLink<IncrementalParseForest, HybridStackNode2> link = from.addLink(to, parseForest);
 
         observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }
 
-    protected Iterable<StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>>> stackLinksOut(HybridStackNode<IncrementalParseForest> stack) {
+    protected Iterable<StackLink<IncrementalParseForest, HybridStackNode2>> stackLinksOut(HybridStackNode2 stack) {
         return stack.getLinks();
     }
 
 
-    public void rejectStackLink(StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> link) {
+    public void rejectStackLink(StackLink<IncrementalParseForest, HybridStackNode2> link) {
         link.reject();
 
         observing.notify(observer -> observer.rejectStackLink(link));
     }
 
-    public StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> findDirectLink(HybridStackNode<IncrementalParseForest> from, HybridStackNode<IncrementalParseForest> to) {
-        for (StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> link : stackLinksOut(from)) {
+    public StackLink<IncrementalParseForest, HybridStackNode2> findDirectLink(HybridStackNode2 from, HybridStackNode2 to) {
+        for (StackLink<IncrementalParseForest, HybridStackNode2> link : stackLinksOut(from)) {
             if (link.to == to)
                 return link;
         }
@@ -78,10 +83,10 @@ public class HybridStackManager2 {
         return null;
     }
 
-    public List<StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>>> findAllPathsOfLength(HybridStackNode<IncrementalParseForest> stack, int length) {
-        List<StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>>> paths = new ArrayList<>();
+    public List<StackPath<IncrementalParseForest, HybridStackNode2>> findAllPathsOfLength(HybridStackNode2 stack, int length) {
+        List<StackPath<IncrementalParseForest, HybridStackNode2>> paths = new ArrayList<>();
 
-        StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> pathsOrigin = new EmptyStackPath<>(stack);
+        StackPath<IncrementalParseForest, HybridStackNode2> pathsOrigin = new EmptyStackPath<>(stack);
 
         findAllPathsOfLength(pathsOrigin, length, paths);
 
@@ -89,16 +94,16 @@ public class HybridStackManager2 {
     }
 
 
-    private void findAllPathsOfLength(StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> path, int length,
-                                      List<StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>>> paths) {
+    private void findAllPathsOfLength(StackPath<IncrementalParseForest, HybridStackNode2> path, int length,
+                                      List<StackPath<IncrementalParseForest, HybridStackNode2>> paths) {
         if (length == 0)
             paths.add(path);
         else {
-            HybridStackNode<IncrementalParseForest> lastStackNode = path.head();
+            HybridStackNode2 lastStackNode = path.head();
 
-            for (StackLink<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> linkOut : stackLinksOut(lastStackNode)) {
+            for (StackLink<IncrementalParseForest, HybridStackNode2> linkOut : stackLinksOut(lastStackNode)) {
                 if (!linkOut.isRejected()) {
-                    StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> extendedPath = new NonEmptyStackPath<>(linkOut, path);
+                    StackPath<IncrementalParseForest, HybridStackNode2> extendedPath = new NonEmptyStackPath<>(linkOut, path);
 
                     findAllPathsOfLength(extendedPath, length - 1, paths);
                 }
@@ -108,15 +113,15 @@ public class HybridStackManager2 {
 
     public IncrementalParseForest[] getParseForests( IncrementalParseForestManager2 parseForestManager,
 //            ParseForestManager<IncrementalParseForest, ?, ?, ?, ?> parseForestManager,
-                                                    StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> pathBegin) {
+                                                    StackPath<IncrementalParseForest, HybridStackNode2> pathBegin) {
         IncrementalParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 
         if (res != null) {
-            StackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> path = pathBegin;
+            StackPath<IncrementalParseForest, HybridStackNode2> path = pathBegin;
 
             for (int i = 0; i < pathBegin.length; i++) {
-                NonEmptyStackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>> nonEmptyPath =
-                        (NonEmptyStackPath<IncrementalParseForest, HybridStackNode<IncrementalParseForest>>) path;
+                NonEmptyStackPath<IncrementalParseForest, HybridStackNode2> nonEmptyPath =
+                        (NonEmptyStackPath<IncrementalParseForest, HybridStackNode2>) path;
 
                 res[i] = nonEmptyPath.link.parseForest;
 

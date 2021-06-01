@@ -19,7 +19,7 @@ public class ParserObserving
 //@formatter:on
 {
 
-    private final List<IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState>> observers;
+    public final List<IParserObserver<ParseForest, Derivation, ParseNode, StackNode, ParseState>> observers;
 
     public ParserObserving() {
         this.observers = new ArrayList<>();
