@@ -39,6 +39,7 @@ import org.spoofax.jsglr2.stack.hybrid.HybridStackManager2;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 import org.spoofax.jsglr2.stack.paths.StackPath;
+import org.spoofax.jsglr2.stack.paths.StackPath2;
 
 public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
@@ -347,13 +348,13 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     notify(observer -> observer.doReductions(parseState, stack, reduceAction));
 
 //                    reduceManager.doReductionsHelper(observing, parseState, stack, reduceAction, null);
-                    List<StackPath<IncrementalParseForest, HybridStackNode2>> paths = stackManager.findAllPathsOfLength(stack, reduceAction.arity());
+                    List<StackPath2> paths = stackManager.findAllPathsOfLength(stack, reduceAction.arity());
 
 
                     if (paths.size() > 1)
                         parseState.setMultipleStates(true);
 
-                    for (StackPath<IncrementalParseForest, HybridStackNode2> path : paths) {
+                    for (StackPath2 path : paths) {
                         HybridStackNode2 originStack = path.head();
                         IncrementalParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
@@ -456,7 +457,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
                             // do reductionshelper
 //                        reduceManager.doReductionsHelper(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
-                            List<StackPath<IncrementalParseForest, HybridStackNode2>> paths = stackManager.findAllPathsOfLength(activeStackForLimitedReductions, reduceAction.arity());
+                            List<StackPath2> paths = stackManager.findAllPathsOfLength(activeStackForLimitedReductions, reduceAction.arity());
 
                             if (link != null)
                                 paths = paths.stream().filter(path -> path.contains(link)).collect(Collectors.toList());
@@ -464,7 +465,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                             if (paths.size() > 1)
                                 parseState.setMultipleStates(true);
 
-                            for (StackPath<IncrementalParseForest, HybridStackNode2> path : paths) {
+                            for (StackPath2 path : paths) {
                                 HybridStackNode2 originStack2 = path.head();
                                 IncrementalParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 

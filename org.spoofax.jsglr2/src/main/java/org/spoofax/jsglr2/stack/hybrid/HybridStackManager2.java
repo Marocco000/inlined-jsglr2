@@ -8,9 +8,7 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager2
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.paths.EmptyStackPath;
-import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath;
-import org.spoofax.jsglr2.stack.paths.StackPath;
+import org.spoofax.jsglr2.stack.paths.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,10 +81,10 @@ public class HybridStackManager2 {
         return null;
     }
 
-    public List<StackPath<IncrementalParseForest, HybridStackNode2>> findAllPathsOfLength(HybridStackNode2 stack, int length) {
-        List<StackPath<IncrementalParseForest, HybridStackNode2>> paths = new ArrayList<>();
+    public List<StackPath2> findAllPathsOfLength(HybridStackNode2 stack, int length) {
+        List<StackPath2> paths = new ArrayList<>();
 
-        StackPath<IncrementalParseForest, HybridStackNode2> pathsOrigin = new EmptyStackPath<>(stack);
+        StackPath2 pathsOrigin = new EmptyStackPath2(stack);
 
         findAllPathsOfLength(pathsOrigin, length, paths);
 
@@ -94,8 +92,8 @@ public class HybridStackManager2 {
     }
 
 
-    private void findAllPathsOfLength(StackPath<IncrementalParseForest, HybridStackNode2> path, int length,
-                                      List<StackPath<IncrementalParseForest, HybridStackNode2>> paths) {
+    private void findAllPathsOfLength(StackPath2 path, int length,
+                                      List<StackPath2> paths) {
         if (length == 0)
             paths.add(path);
         else {
@@ -103,7 +101,7 @@ public class HybridStackManager2 {
 
             for (StackLink<IncrementalParseForest, HybridStackNode2> linkOut : stackLinksOut(lastStackNode)) {
                 if (!linkOut.isRejected()) {
-                    StackPath<IncrementalParseForest, HybridStackNode2> extendedPath = new NonEmptyStackPath<>(linkOut, path);
+                    StackPath2 extendedPath = new NonEmptyStackPath2(linkOut, path);
 
                     findAllPathsOfLength(extendedPath, length - 1, paths);
                 }
@@ -113,15 +111,15 @@ public class HybridStackManager2 {
 
     public IncrementalParseForest[] getParseForests( IncrementalParseForestManager2 parseForestManager,
 //            ParseForestManager<IncrementalParseForest, ?, ?, ?, ?> parseForestManager,
-                                                    StackPath<IncrementalParseForest, HybridStackNode2> pathBegin) {
+                                                    StackPath2 pathBegin) {
         IncrementalParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 
         if (res != null) {
-            StackPath<IncrementalParseForest, HybridStackNode2> path = pathBegin;
+            StackPath2 path = pathBegin;
 
             for (int i = 0; i < pathBegin.length; i++) {
-                NonEmptyStackPath<IncrementalParseForest, HybridStackNode2> nonEmptyPath =
-                        (NonEmptyStackPath<IncrementalParseForest, HybridStackNode2>) path;
+                NonEmptyStackPath2 nonEmptyPath =
+                        (NonEmptyStackPath2) path;
 
                 res[i] = nonEmptyPath.link.parseForest;
 
