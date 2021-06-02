@@ -104,7 +104,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         IncrementalParseState2 parseState = new IncrementalParseState2(request,
                 new EagerIncrementalInputStack(updatedTree, request.input),
                 new ActiveStacksArrayList2(observing),
-                new ForActorStacksArrayDeque<>(observing));
+                new ForActorStacksArrayDeque2(observing));
 
 
         notify(observer -> observer.parseStart(parseState));
