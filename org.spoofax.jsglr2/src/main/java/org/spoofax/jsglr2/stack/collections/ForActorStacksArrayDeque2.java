@@ -7,20 +7,24 @@ import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.observing.IParserNotification;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class ForActorStacksArrayDeque2 implements IForActorStacks<HybridStackNode2> {
 
     protected final Queue<HybridStackNode2> forActor;
 
-    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
+//    private final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
     protected final Queue<HybridStackNode2> forActorDelayed;
+    public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
 
     public ForActorStacksArrayDeque2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
-        this.observing = observing;
+//            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
+            List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers) {
 
+//        this.observing = observing;
+        this.observers = observers;
         // TODO: implement priority (see P9707 Section 8.4)
         Comparator<HybridStackNode2> stackNodePriorityComparator = (HybridStackNode2 stackNode1, HybridStackNode2 stackNode2) -> 0;
 
@@ -33,7 +37,11 @@ public class ForActorStacksArrayDeque2 implements IForActorStacks<HybridStackNod
 
     @Override
     public void add(HybridStackNode2 stack) {
-        observing.notify(observer -> observer.addForActorStack(stack));
+        //observing notify
+        if(!observers.isEmpty()) {
+            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addForActorStack(stack)).notify(observer1);
+        }
 
         if (stack.state().isRejectable())
             forActorDelayed.add(stack);

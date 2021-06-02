@@ -6,7 +6,8 @@ import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.observing.IParserNotification;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.paths.*;
 
@@ -14,12 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HybridStackManager2 {
-    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
+//    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;
+
+
+    public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
+
 
 
     public HybridStackManager2(
-            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
-        this.observing = observing;
+//            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing
+                List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers
+    ) {
+//        this.observing = observing;
+            this.observers = observers;
     }
 
 //    protected HybridStackNode<IncrementalParseForest> createStackNode(IState state, boolean isRoot) {
@@ -40,7 +48,10 @@ public class HybridStackManager2 {
     public HybridStackNode2 createStackNode(IState state) {
         HybridStackNode2 newStackNode = new HybridStackNode2(state);
 
-        observing.notify(observer -> observer.createStackNode(newStackNode));
+        if(!observers.isEmpty()) {
+            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackNode(newStackNode)).notify(observer1);
+        }
 
         return newStackNode;
     }
@@ -56,7 +67,10 @@ public class HybridStackManager2 {
 
         //StackLink<IncrementalParseForest, HybridStackNode2> link = from.addLink(to, parseForest);
 
-        observing.notify(observer -> observer.createStackLink(link));
+        if(!observers.isEmpty()) {
+            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link)).notify(observer1);
+        }
 
         return link;
     }
@@ -69,7 +83,11 @@ public class HybridStackManager2 {
     public void rejectStackLink(StackLink2 link) {
         link.reject();
 
-        observing.notify(observer -> observer.rejectStackLink(link));
+        if(observers.isEmpty())
+            return;
+
+        for(IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(link)).notify(observer1);
     }
 
     public StackLink2 findDirectLink(HybridStackNode2 from, HybridStackNode2 to) {
@@ -130,5 +148,4 @@ public class HybridStackManager2 {
         }
         return null;
     }
-
 }

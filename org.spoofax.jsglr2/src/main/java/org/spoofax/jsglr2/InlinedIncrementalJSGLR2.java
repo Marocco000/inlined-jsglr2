@@ -12,7 +12,6 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.stack.collections.*;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer2;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeTokens;
 
@@ -67,7 +66,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 
     @Override
     public void attachObserver(IParserObserver observer) {
-        parser.observing.attachObserver(observer);
+        parser.observers.add(observer);
     }
 
     public final HashMap<JSGLR2Request.CachingKey, String> inputCache = new HashMap<>();

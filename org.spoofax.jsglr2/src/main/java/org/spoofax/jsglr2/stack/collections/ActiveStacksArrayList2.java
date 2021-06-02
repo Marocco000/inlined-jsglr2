@@ -10,31 +10,34 @@ import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.parser.observing.IParserNotification;
+import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class ActiveStacksArrayList2
-////@formatter:off
-//        <ParseForest extends IParseForest,
-//                Derivation  extends IDerivation<ParseForest>,
-//                ParseNode   extends IParseNode<ParseForest, Derivation>,
-//                StackNode   extends IStackNode,
-//                ParseState  extends AbstractParseState<?, StackNode>>
-////@formatter:on
     implements IActiveStacks<HybridStackNode2>
 {
 
-    protected ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode,
-            HybridStackNode2, IncrementalParseState2> observing;
+//    protected ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode,
+//            HybridStackNode2, IncrementalParseState2> observing;
+    public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
+
     protected List<HybridStackNode2> activeStacks;
 
-    public ActiveStacksArrayList2(ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
-        this.observing = observing;
+    public ActiveStacksArrayList2(
+//            ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing) {
+        List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers) {
+
+//        this.observing = observing;
+        this.observers = observers;
         this.activeStacks = new ArrayList<>();
     }
 
     @Override public void add(HybridStackNode2 stack) {
-        observing.notify(observer -> observer.addActiveStack(stack));
+        if(!observers.isEmpty()) {
+            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addActiveStack(stack)).notify(observer1);
+        }
 
         activeStacks.add(stack);
     }
@@ -56,7 +59,11 @@ public class ActiveStacksArrayList2
     }
 
     @Override public HybridStackNode2 findWithState(IState state) {
-        observing.notify(observer -> observer.findActiveStackWithState(state));
+        // observing notify
+        if(!observers.isEmpty()) {
+            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.findActiveStackWithState(state)).notify(observer1);
+        }
 
         for(HybridStackNode2 stack : activeStacks)
             if(stack.state().id() == state.id())
