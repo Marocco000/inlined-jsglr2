@@ -33,7 +33,6 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.reducing.ReduceActionFilter;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.stack.collections.*;
@@ -60,7 +59,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     //    public final IParseFailureHandler<IncrementalParseForest, StackNode, ParseState> failureHandler;
     //    public final IParseReporter<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, StackNode, IIncrementalInputStack, ParseState> reporter;
 
-    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2>> reduceActionFilters;
+    //    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2>> reduceActionFilters;
 
     public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
 
@@ -90,8 +89,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 //                (parseTable, stackManager, parseForestManager, ReducerOptimized::new);
 
         // Reducer stuff
-        this.reduceActionFilters = new ArrayList<>();
-        reduceActionFilters.add(ReduceActionFilter.ignoreRecoveryAndCompletion());
+//        this.reduceActionFilters = new ArrayList<>();
+//        reduceActionFilters.add(ReduceActionFilter.ignoreRecoveryAndCompletion());
 
 //        this.failureHandler = failureHandlerFactory.get(observing);d
 //        this.failureHandler = new DefaultParseFailureHandler(observing);
@@ -390,14 +389,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 IReduce reduceAction = (IReduce) action;
                 // do reduction
 //                reduceManager.doReductions(observing, parseState, stack, reduceAction);
-                boolean ignoreReduceAction = false;
-                for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2> reduceActionFilter : reduceActionFilters) {
-                    if (reduceActionFilter.ignoreReduce(parseState, stack, reduceAction))
-                        ignoreReduceAction = true;
-                }
 
-//                if(!reduceManager.ignoreReduceAction(parseState, stack, reduceAction)){
-                if (!ignoreReduceAction) {
+                if (!(reduceAction.production().isRecovery() || reduceAction.production().isCompletion())) {
 
                     notify(observer -> observer.doReductions(parseState, stack, reduceAction));
 
@@ -594,14 +587,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                             .getApplicableReduceActions(parseState.inputStack, parseState.mode)) {
 //                        reduceManager.doLimitedReductions(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
 
-                        boolean ignoreReduceAction = false;
-                        for (ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2> reduceActionFilter : reduceActionFilters) {
-                            if (reduceActionFilter.ignoreReduce(parseState, activeStackForLimitedReductions, reduce))
-                                ignoreReduceAction = true;
-                        }
-
-//                        if(!reduceManager.ignoreReduceAction(parseState, activeStackForLimitedReductions, reduce)){
-                        if (!ignoreReduceAction) {
+                        if (!(reduceAction.production().isRecovery() || reduceAction.production().isCompletion())) {
+                            // if ! ignore reduce action
                             notify(observer -> observer.doLimitedReductions(parseState, activeStackForLimitedReductions, reduceAction, newDirectLinkToActiveStateWithGoto));
 
                             // do reductionshelper
