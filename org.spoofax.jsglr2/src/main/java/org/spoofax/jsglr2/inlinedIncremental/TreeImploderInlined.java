@@ -40,22 +40,21 @@ public class TreeImploderInlined {
     }
 
 
-    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, Void resultCache) {
-        return implode(new JSGLR2Request(input, fileName), parseForest, resultCache);
-    }
+//    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, Void resultCache) {
+//        return implode(new JSGLR2Request(input, fileName), parseForest, resultCache);
+//    }
 
-    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(JSGLR2Request request, IncrementalParseForest parseForest) {
-        return implode(request, parseForest, null);
-    }
+//    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(JSGLR2Request request, IncrementalParseForest parseForest) {
+//        return implode(request, parseForest, null);
+//    }
 
-    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest) {
-        return implode(new JSGLR2Request(input, fileName), parseForest);
-    }
+//    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest) {
+//        return implode(new JSGLR2Request(input, fileName), parseForest);
+//    }
 
 
     public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> implode(JSGLR2Request request,
-                                                                                           IncrementalParseForest parseForest, Void resultCache) {
-//        TreeImploder.SubTree<IStrategoTerm> result = implodeParseNode(inputFactory.get(request.input), parseForest, 0);
+                                                                                           IncrementalParseForest parseForest) {
         // TODO (MARA) optimization new class without cache instead of IncrementalImplodeInputInlined
         TreeImploder.SubTree<IStrategoTerm> result = implodeParseNode(new IncrementalImplodeInputInlined(request.input, null), parseForest, 0);
 
@@ -201,6 +200,68 @@ public class TreeImploderInlined {
             return treeFactory.createTuple(childASTs);
     }
 
+
+
+    // FROM AbstractTreeImploder
+    protected List<List<IncrementalParseForest>> implodeAmbiguousLists(List<IncrementalDerivation> derivations) {
+        List<List<IncrementalParseForest>> alternatives = new ArrayList<>();
+
+        for (IncrementalDerivation derivation : derivations) {
+            IncrementalParseForest[] children = derivation.parseForests();
+            if (children.length == 0) {
+                alternatives.add(Collections.emptyList());
+            } else if (children.length == 1) {
+                alternatives.add(Collections.singletonList(children[0]));
+            } else {
+                List<IncrementalParseForest> subTrees = Arrays.asList(children);
+
+                IncrementalParseNode head = (IncrementalParseNode) children[0];
+
+                if (head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
+                    List<IncrementalParseForest> tail = subTrees.subList(1, subTrees.size());
+
+                    List<List<IncrementalParseForest>> headExpansions =
+                            implodeAmbiguousLists(head.getPreferredAvoidedDerivations());
+
+                    for (List<IncrementalParseForest> headExpansion : headExpansions) {
+                        List<IncrementalParseForest> headExpansionWithTail = new ArrayList<>(headExpansion);
+                        headExpansionWithTail.addAll(tail);
+                        alternatives.add(headExpansionWithTail);
+                    }
+                } else {
+                    alternatives.add(subTrees);
+                }
+            }
+        }
+
+        return alternatives;
+    }
+
+    protected IncrementalParseNode implodeInjection(IncrementalParseNode parseNode) {
+        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
+            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
+                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
+
+                // Meta variables are injected:
+                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+                    return injectedParseNode;
+                }
+            }
+        }
+
+        return parseNode;
+    }
+
+    protected List<IncrementalDerivation> applyDisambiguationFilters(IncrementalParseNode parseNode) {
+        if (!parseNode.isAmbiguous())
+            return Collections.singletonList(parseNode.getFirstDerivation());
+
+        return parseNode.getPreferredAvoidedDerivations();
+    }
+
+
+    // TODO (MARA) use hardcoded version ??
     public static class SubTree2<Tree> {
 
         public final Tree tree;
@@ -268,63 +329,5 @@ public class TreeImploderInlined {
             return false;
         }
 
-    }
-
-    // FROM AbstractTreeImploder
-    protected List<List<IncrementalParseForest>> implodeAmbiguousLists(List<IncrementalDerivation> derivations) {
-        List<List<IncrementalParseForest>> alternatives = new ArrayList<>();
-
-        for (IncrementalDerivation derivation : derivations) {
-            IncrementalParseForest[] children = derivation.parseForests();
-            if (children.length == 0) {
-                alternatives.add(Collections.emptyList());
-            } else if (children.length == 1) {
-                alternatives.add(Collections.singletonList(children[0]));
-            } else {
-                List<IncrementalParseForest> subTrees = Arrays.asList(children);
-
-                IncrementalParseNode head = (IncrementalParseNode) children[0];
-
-                if (head.production().isList() && head.getPreferredAvoidedDerivations().size() > 1) {
-                    List<IncrementalParseForest> tail = subTrees.subList(1, subTrees.size());
-
-                    List<List<IncrementalParseForest>> headExpansions =
-                            implodeAmbiguousLists(head.getPreferredAvoidedDerivations());
-
-                    for (List<IncrementalParseForest> headExpansion : headExpansions) {
-                        List<IncrementalParseForest> headExpansionWithTail = new ArrayList<>(headExpansion);
-                        headExpansionWithTail.addAll(tail);
-                        alternatives.add(headExpansionWithTail);
-                    }
-                } else {
-                    alternatives.add(subTrees);
-                }
-            }
-        }
-
-        return alternatives;
-    }
-
-    protected IncrementalParseNode implodeInjection(IncrementalParseNode parseNode) {
-        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
-            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
-                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
-
-                // Meta variables are injected:
-                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
-                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
-                    return injectedParseNode;
-                }
-            }
-        }
-
-        return parseNode;
-    }
-
-    protected List<IncrementalDerivation> applyDisambiguationFilters(IncrementalParseNode parseNode) {
-        if (!parseNode.isAmbiguous())
-            return Collections.singletonList(parseNode.getFirstDerivation());
-
-        return parseNode.getPreferredAvoidedDerivations();
     }
 }

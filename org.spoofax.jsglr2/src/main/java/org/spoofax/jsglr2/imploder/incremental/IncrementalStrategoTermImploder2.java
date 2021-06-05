@@ -75,15 +75,6 @@ public class IncrementalStrategoTermImploder2 {
         return new ImplodeResult<>(result, resultCache, result.tree, result.containsAmbiguity);
     }
 
-//    // from TreeImploder
-//    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm>
-//    regularImplodeimplode(JSGLR2Request request,
-//                        IncrementalParseForest parseForest) {
-//        TreeImploder.SubTree<IStrategoTerm> result = superImplodeParseNode(inputFactory.get(request.input), parseForest, 0);
-//
-//        return new ImplodeResult<>(result, null, result.tree, result.containsAmbiguity);
-//    }
-
     protected TreeImploder.SubTree<IStrategoTerm> implodeParseNode(IncrementalImplodeInputInlined input, IncrementalParseForest parseNode, int startOffset) {
         if (input.resultCache.cache.containsKey(parseNode))
             return input.resultCache.cache.get(parseNode);
@@ -175,11 +166,6 @@ public class IncrementalStrategoTermImploder2 {
         }
     }
 
-
-//    public static class ResultCache2 {
-//        protected final WeakHashMap<IncrementalParseForest, TreeImploder.SubTree<IStrategoTerm>> cache = new WeakHashMap<>();
-//    }
-
     // From TreeImploder
 
     protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInputInlined input, IncrementalDerivation derivation, int startOffset) {
@@ -227,10 +213,6 @@ public class IncrementalStrategoTermImploder2 {
                 childASTs.size() == 1 && contextFreeTerm == childASTs.get(0));
     }
 
-//    protected List<IncrementalParseForest> getChildParseForests(IncrementalDerivation derivation) {
-//        return getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests()));
-//    }
-
     protected List<IncrementalParseForest> getChildParseForests(IProduction production, List<IncrementalParseForest> parseForests) {
         // Make sure lists are flattened
         if (production.isList()) {
@@ -271,35 +253,6 @@ public class IncrementalStrategoTermImploder2 {
         }
     }
 
-//    protected IStrategoTerm createLexicalTerm(IProduction production, String inputString, int startOffset, int width) {
-//        if (production.isLayout() || production.isLiteral()) {
-//            return null;
-//        } else if (production.isLexical()) {
-//            String substring = inputString.substring(startOffset, startOffset + width);
-//            if (production.lhs() instanceof IMetaVarSymbol)
-//                return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
-//            else
-//                return treeFactory.createStringTerminal(production.lhs(), substring);
-//        } else {
-//            throw new RuntimeException("invalid term type");
-//        }
-//    }
-
-//    protected IStrategoTerm createContextFreeTerm(IProduction production, List<IStrategoTerm> childASTs) {
-//        String constructor = production.constructor();
-//
-//        if (constructor != null)
-//            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
-//        else if (production.isOptional())
-//            return treeFactory.createOptional(production.lhs(), childASTs);
-//        else if (production.isList())
-//            return treeFactory.createList(childASTs);
-//        else if (childASTs.size() == 1)
-//            return childASTs.get(0);
-//        else
-//            return treeFactory.createTuple(childASTs);
-//    }
-
     // from AbstractTreeImploder
     protected List<List<IncrementalParseForest>> implodeAmbiguousLists(List<IncrementalDerivation> derivations) {
         List<List<IncrementalParseForest>> alternatives = new ArrayList<>();
@@ -334,28 +287,5 @@ public class IncrementalStrategoTermImploder2 {
 
         return alternatives;
     }
-
-//    protected IncrementalParseNode implodeInjection(IncrementalParseNode parseNode) {
-//        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
-//            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
-//                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
-//
-//                // Meta variables are injected:
-//                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
-//                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
-//                    return injectedParseNode;
-//                }
-//            }
-//        }
-//
-//        return parseNode;
-//    }
-
-//    protected List<IncrementalDerivation> applyDisambiguationFilters(IncrementalParseNode parseNode) {
-//        if (!parseNode.isAmbiguous())
-//            return Collections.singletonList(parseNode.getFirstDerivation());
-//
-//        return parseNode.getPreferredAvoidedDerivations();
-//    }
 
 }
