@@ -32,14 +32,14 @@ public class StrategoTermTreeFactoryInlined {
 
     public IStrategoTerm createNonTerminal(ISymbol symbol, String constructor,
                                            Iterable<IStrategoTerm> childASTs) {
-        IStrategoTerm[] terms = toArray(childASTs);
+        IStrategoTerm[] terms = Iterables.toArray(childASTs, IStrategoTerm.class);
         return termFactory.makeAppl(
                 termFactory.makeConstructor(constructor != null ? constructor : ISymbol.getSort(symbol), terms.length),
                 terms);
     }
 
     public IStrategoTerm createList(Iterable<IStrategoTerm> children) {
-        return termFactory.makeList(toArray(children));
+        return termFactory.makeList(Iterables.toArray(children, IStrategoTerm.class));
     }
 
     public IStrategoTerm createOptional(ISymbol symbol, Iterable<IStrategoTerm> children) {
@@ -47,15 +47,15 @@ public class StrategoTermTreeFactoryInlined {
     }
 
     public IStrategoTerm createTuple(Iterable<IStrategoTerm> children) {
-        return termFactory.makeTuple(toArray(children));
+        return termFactory.makeTuple(Iterables.toArray(children, IStrategoTerm.class));
     }
 
     public IStrategoTerm createAmb(Iterable<IStrategoTerm> alternatives) {
         return createNonTerminal(null, "amb", Collections.singletonList(createList(alternatives)));
     }
 
-    private static IStrategoTerm[] toArray(Iterable<IStrategoTerm> children) {
-        return Iterables.toArray(children, IStrategoTerm.class);
-    }
+//    private static IStrategoTerm[] toArray(Iterable<IStrategoTerm> children) {
+//        return Iterables.toArray(children, IStrategoTerm.class);
+//    }
 
 }
