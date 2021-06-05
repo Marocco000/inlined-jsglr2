@@ -6,13 +6,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
-import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
-import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
-import org.spoofax.jsglr2.imploder.treefactory.StrategoTermTreeFactory;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inlinedIncremental.IncrementalImplodeInputInlined;
+import org.spoofax.jsglr2.inlinedIncremental.StrategoTermTreeFactoryInlined;
+import org.spoofax.jsglr2.inlinedIncremental.TreeImploderInlined;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
@@ -35,18 +34,16 @@ public class IncrementalStrategoTermImploder2 {
 //        ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> {
 
 
-    public final TreeImploder<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, Void, IStrategoTerm, IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> regularImplode;
+    public final TreeImploderInlined regularImplode;
 
-    protected final IImplodeInputFactory<IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> inputFactory;
-    protected final ITreeFactory<IStrategoTerm> treeFactory;
+    protected final StrategoTermTreeFactoryInlined treeFactory;
 
     public IncrementalStrategoTermImploder2() {
 //        super(inputString -> new IncrementalImplodeInput<>(inputString, null), IncrementalImplodeInput::new,
 //                new StrategoTermTreeFactory());
 //        super(inputString -> new IncrementalImplodeInput<>(inputString, null), new StrategoTermTreeFactory());
-        this.inputFactory = inputString -> new IncrementalImplodeInput<>(inputString, null);
-        this.treeFactory = new StrategoTermTreeFactory();
-        this.regularImplode = new TreeImploder<>(inputFactory, treeFactory);
+        this.treeFactory = new StrategoTermTreeFactoryInlined();
+        this.regularImplode = new TreeImploderInlined(treeFactory);
     }
 
     ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache) {
