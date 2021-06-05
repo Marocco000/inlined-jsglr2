@@ -4,7 +4,6 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.symbols.IMetaVarSymbol;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.imploder.IImploder;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
@@ -13,6 +12,7 @@ import org.spoofax.jsglr2.imploder.treefactory.StrategoTermTreeFactory;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
+import org.spoofax.jsglr2.inlinedIncremental.IncrementalImplodeInputInlined;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
@@ -35,7 +35,6 @@ public class IncrementalStrategoTermImploder2 {
 //        ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> {
 
 
-    public final IIncrementalImplodeInputFactory<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm, IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> incrementalInputFactory;
     public final TreeImploder<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, Void, IStrategoTerm, IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> regularImplode;
 
     protected final IImplodeInputFactory<IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> inputFactory;
@@ -48,7 +47,6 @@ public class IncrementalStrategoTermImploder2 {
         this.inputFactory = inputString -> new IncrementalImplodeInput<>(inputString, null);
         this.treeFactory = new StrategoTermTreeFactory();
         this.regularImplode = new TreeImploder<>(inputFactory, treeFactory);
-        this.incrementalInputFactory = IncrementalImplodeInput::new;
     }
 
     ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache) {
@@ -75,7 +73,7 @@ public class IncrementalStrategoTermImploder2 {
         IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache = previousResult == null ? new IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>() : previousResult;
 
         TreeImploder.SubTree<IStrategoTerm> result =
-                implodeParseNode(incrementalInputFactory.get(request.input, resultCache), parseForest, 0);
+                implodeParseNode(new IncrementalImplodeInputInlined(request.input, resultCache), parseForest, 0);
 
         return new ImplodeResult<>(result, resultCache, result.tree, result.containsAmbiguity);
     }
@@ -89,7 +87,7 @@ public class IncrementalStrategoTermImploder2 {
 //        return new ImplodeResult<>(result, null, result.tree, result.containsAmbiguity);
 //    }
 
-    protected TreeImploder.SubTree<IStrategoTerm> implodeParseNode(IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> input, IncrementalParseForest parseNode, int startOffset) {
+    protected TreeImploder.SubTree<IStrategoTerm> implodeParseNode(IncrementalImplodeInputInlined input, IncrementalParseForest parseNode, int startOffset) {
         if (input.resultCache.cache.containsKey(parseNode))
             return input.resultCache.cache.get(parseNode);
 
@@ -99,7 +97,7 @@ public class IncrementalStrategoTermImploder2 {
     }
 
     // from TreeImploder
-    protected TreeImploder.SubTree<IStrategoTerm> superImplodeParseNode(IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> input, IncrementalParseForest parseForest, int startOffset) {
+    protected TreeImploder.SubTree<IStrategoTerm> superImplodeParseNode(IncrementalImplodeInputInlined input, IncrementalParseForest parseForest, int startOffset) {
         if (parseForest instanceof ICharacterNode) {
             return new TreeImploder.SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()), null,
                     parseForest.width(), true);
@@ -187,7 +185,7 @@ public class IncrementalStrategoTermImploder2 {
 
     // From TreeImploder
 
-    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> input, IncrementalDerivation derivation, int startOffset) {
+    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInputInlined input, IncrementalDerivation derivation, int startOffset) {
         IProduction production = derivation.production();
 
         if (!production.isContextFree())
@@ -197,7 +195,7 @@ public class IncrementalStrategoTermImploder2 {
         return implodeDerivationChildren(input, production, getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests())), startOffset);
     }
 
-    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivationChildren(IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> input, IProduction production,
+    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivationChildren(IncrementalImplodeInputInlined input, IProduction production,
                                                                             List<IncrementalParseForest> childParseForests, int startOffset) {
 
         List<IStrategoTerm> childASTs = new ArrayList<>();
