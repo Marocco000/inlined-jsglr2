@@ -20,39 +20,19 @@ import java.util.HashMap;
 public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
 
     IParseTable parseTable;
+
     public final IncrementalParser2 parser;
     IncrementalStrategoTermImploder2 imploder;
-    //    ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> tokenizer;
     IncrementalTreeShapedTokenizer2 tokenizer;
-
-//    IActiveStacksFactory activeStacksFactory;
-//    IForActorStacksFactory forActorStacksFactory;
 
     InlinedIncrementalJSGLR2(IParseTable parseTable) {
         this.parseTable = parseTable;
-
-//        this.activeStacksFactory = new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList);
-//        this.forActorStacksFactory = new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque);
 
 //        IncrementalInputStackFactory<IIncrementalInputStack> incrementalInputStackFactory =
 //                EagerIncrementalInputStack::new; // TODO switch between Eager, Lazy, and Linked?
 
         IncrementalParser2 parser =
-                new IncrementalParser2(
-//                        EagerIncrementalInputStack::new,
-//                        IncrementalParseState.factory(activeStacksFactory, forActorStacksFactory),
-                        parseTable
-//                        HybridStackManager.factory(),
-//                        IncrementalParseForestManager::new,
-//                        null,
-//                        IncrementalReduceManager.factoryIncremental(ReducerOptimized::new)
-//                       (parseTable1, stackManager, parseForestManager) -> new IncrementalReduceManager<>(parseTable1,
-//                                stackManager, parseForestManager, ReducerOptimized::new),
-
-//                        DefaultParseFailureHandler::new,
-//                        EmptyParseReporter.factory()
-                );
-//        parser.reduceManager.addFilter(ReduceActionFilter.ignoreRecoveryAndCompletion());
+                new IncrementalParser2(parseTable);
 
         this.parser = parser;
         this.imploder = new IncrementalStrategoTermImploder2();
@@ -84,7 +64,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
         IncrementalTreeTokens previousTokens = tokensCache.get(cachingKey);
 
         // Parse
-        ParseResult<IncrementalParseForest> parseResult = parser.parse(request, previousInput, (IncrementalParseForest) previousParseForest);
+        ParseResult<IncrementalParseForest> parseResult = parser.parse(request, previousInput, previousParseForest);
 
         if (parseResult.isSuccess()) {
             IncrementalParseForest parseForest = ((ParseSuccess<IncrementalParseForest>) parseResult).parseResult;
@@ -97,6 +77,7 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
             parseResult.postProcessMessages(tokens);
 
             if (cachingKey != null) {
+                // TODO (MARA) optimize: bundle up the data and use one .put instead of 4 ?
                 inputCache.put(cachingKey, request.input);
                 parseForestCache.put(cachingKey, parseForest);
                 imploderCacheCache.put(cachingKey, implodeResult.resultCache());
