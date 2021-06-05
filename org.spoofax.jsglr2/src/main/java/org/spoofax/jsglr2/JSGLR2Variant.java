@@ -43,8 +43,6 @@ public class JSGLR2Variant {
                 return new StrategoTermImploder<>();
             case RecursiveIncremental:
                 return new IncrementalStrategoTermImploder<>();
-            case InlinedRecursiveIncremental:
-                return new IncrementalStrategoTermImploder2();
             case Iterative:
                 return new IterativeStrategoTermImploder<>();
         }
@@ -60,8 +58,6 @@ public class JSGLR2Variant {
                 return new TreeShapedTokenizer();
             case IncrementalTreeShaped:
                 return new IncrementalTreeShapedTokenizer();
-            case InlinedIncremental:
-                return new IncrementalTreeShapedTokenizer2();
             default:
             case Null:
                 throw new IllegalStateException();

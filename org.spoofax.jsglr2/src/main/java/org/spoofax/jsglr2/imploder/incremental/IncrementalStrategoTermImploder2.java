@@ -18,12 +18,8 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 
 import java.util.*;
 
-public class IncrementalStrategoTermImploder2
+public class IncrementalStrategoTermImploder2 {
 
-        <ParseForest extends IncrementalParseForest
-////                ParseNode   extends IParseNode<ParseForest, Derivation>,
-////                <Derivation  extends IDerivation<IncrementalParseForest>>
-                >
 
 //        extends
 //        IncrementalTreeImploder<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation, IStrategoTerm, IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> {
@@ -35,8 +31,8 @@ public class IncrementalStrategoTermImploder2
 //        AbstractTreeImploder<IncrementalParseForest, IncrementalParseNode, IncrementalDerivation,
 //                TreeImploder.SubTree<IStrategoTerm>,  IncrementalStrategoTermImploder2.ResultCache2,
 //                IStrategoTerm, ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalStrategoTermImploder2.ResultCache2, IStrategoTerm>> {
-        implements IImploder<IncrementalParseForest, TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm,
-        ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> {
+//        implements IImploder<IncrementalParseForest, TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm,
+//        ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> {
 
 
     public final IIncrementalImplodeInputFactory<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm, IncrementalImplodeInput<IncrementalParseNode, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>> incrementalInputFactory;
@@ -55,7 +51,19 @@ public class IncrementalStrategoTermImploder2
         this.incrementalInputFactory = IncrementalImplodeInput::new;
     }
 
-    @Override
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache) {
+        return implode(new JSGLR2Request(input, fileName), parseForest, resultCache);
+    }
+
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(JSGLR2Request request, IncrementalParseForest parseForest) {
+        return implode(request, parseForest, null);
+    }
+
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest) {
+        return implode(new JSGLR2Request(input, fileName), parseForest);
+    }
+
+
     public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>
     implode(JSGLR2Request request, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> previousResult) {
 
