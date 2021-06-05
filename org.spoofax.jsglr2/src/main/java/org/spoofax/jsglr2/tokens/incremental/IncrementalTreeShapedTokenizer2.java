@@ -18,11 +18,6 @@ import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
 public class IncrementalTreeShapedTokenizer2
         implements ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> {
-//{
-
-//    TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request request, TreeImploder.SubTree<IStrategoTerm> tree) {
-//        return tokenize(request, tree, null);
-//    }
 
     public TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request input,
                                                           TreeImploder.SubTree<IStrategoTerm> tree, IncrementalTreeTokens previousResult) {
@@ -33,21 +28,23 @@ public class IncrementalTreeShapedTokenizer2
 
 //        TokenTree tokenTree =
 //                (input.isCacheable() ? this : regularTokenizer).tokenizeInternal(tokens, tree, Position.START_POSITION);
-        TokenTree tokenTree = null;
+        TokenTree tokenTree;
         if (input.isCacheable()) {
 //            tokenTree = this.tokenizeInternal(tokens, tree, Position.START_POSITION);
             IncrementalTreeTokens incrementalTreeTokens = tokens;
             if (incrementalTreeTokens.resultCache.containsKey(tree))
                 tokenTree = incrementalTreeTokens.resultCache.get(tree);
             else {
-                TokenTree result = tokenizeInternalFromSuper(incrementalTreeTokens, tree, Position.START_POSITION);
+                tokenTree = tokenizeInternalFromSuper(incrementalTreeTokens, tree, Position.START_POSITION);
 
-                incrementalTreeTokens.resultCache.put(tree, result);
-                tokenTree = result;
+                incrementalTreeTokens.resultCache.put(tree, tokenTree);
+//                tokenTree = result;
             }
-        } else
+        } else {
 //            tokenTree = regularTokenizer.tokenizeInternal(tokens, tree, Position.START_POSITION);
             tokenTree = tokenizeInternalFromSuper(tokens, tree, Position.START_POSITION);
+        }
+
 
 //      finalize(tree, tokens, tokenTree);
         // finalize
@@ -66,29 +63,6 @@ public class IncrementalTreeShapedTokenizer2
 
         return new TokenizeResult<>(tokens);
     }
-
-//    public TokenizeResult<TreeTokens> regularTokenizerTokenize(JSGLR2Request input, TreeImploder.SubTree<IStrategoTerm> tree,
-//                                               TreeTokens previousResult) {
-//
-//        TreeTokens tokens = new TreeTokens(input);
-//
-//        TokenTree tokenTree = tokenizeInternal(tokens, tree, Position.START_POSITION);
-//        finalize(tree, tokens, tokenTree);
-//
-//        return new TokenizeResult<>(tokens);
-//    }
-
-//    public TokenTree tokenizeInternal(TreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
-//                                      Position pivotPosition) {
-//        IncrementalTreeTokens incrementalTreeTokens = (IncrementalTreeTokens) tokens;
-//        if (incrementalTreeTokens.resultCache.containsKey(tree))
-//            return incrementalTreeTokens.resultCache.get(tree);
-//
-//        TokenTree result = tokenizeInternalFromSuper(incrementalTreeTokens, tree, pivotPosition);
-//
-//        incrementalTreeTokens.resultCache.put(tree, result);
-//        return result;
-//    }
 
     // from AbstractTreeShapedTokenizer
     public TokenTree tokenizeInternalFromSuper(IncrementalTreeTokens tokens, TreeImploder.SubTree<IStrategoTerm> tree,
@@ -151,25 +125,5 @@ public class IncrementalTreeShapedTokenizer2
             return res;
         }
     }
-
-//    protected final void finalize(TreeImploder.SubTree<IStrategoTerm> tree, TreeTokens tokens, TokenTree tokenTree) {
-//        TokenTree res = new TokenTree(null,
-//                Arrays.asList(new TokenTree(null, tokens.startToken), tokenTree, new TokenTree(null, tokens.endToken)),
-//                tokens.startToken, tokens.endToken, tokenTree.positionRange);
-//        for(TokenTree child : res.children) {
-//            child.parent = res;
-//        }
-//        tokens.startToken.setAstNode(tree.tree);
-//        tokens.endToken.setAstNode(tree.tree);
-//
-//        tokens.startToken.tree = res.children.get(0);
-//        tokens.endToken.tree = res.children.get(2);
-//        tokens.tree = res;
-//    }
-
-//    private static Position positionRange(Position beginPosition, Position endPosition) {
-//        return new Position(endPosition.offset - beginPosition.offset, endPosition.line - beginPosition.line + 1,
-//                beginPosition.line == endPosition.line ? endPosition.column - beginPosition.column : endPosition.column);
-//    }
 
 }
