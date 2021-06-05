@@ -10,9 +10,6 @@ import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.inlinedIncremental.IncrementalImplodeInput2;
-import org.spoofax.jsglr2.inlinedIncremental.StrategoTermTreeFactory2;
-import org.spoofax.jsglr2.inlinedIncremental.TreeImploder2;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
@@ -40,9 +37,7 @@ public class IncrementalStrategoTermImploder2 {
     protected final StrategoTermTreeFactory2 treeFactory;
 
     public IncrementalStrategoTermImploder2() {
-//        super(inputString -> new IncrementalImplodeInput<>(inputString, null), IncrementalImplodeInput::new,
-//                new StrategoTermTreeFactory());
-//        super(inputString -> new IncrementalImplodeInput<>(inputString, null), new StrategoTermTreeFactory());
+
         this.treeFactory = new StrategoTermTreeFactory2();
         this.regularImplode = new TreeImploder2(treeFactory);
     }
@@ -80,91 +75,88 @@ public class IncrementalStrategoTermImploder2 {
         if (input.resultCache.cache.containsKey(parseNode))
             return input.resultCache.cache.get(parseNode);
 
-        TreeImploder.SubTree<IStrategoTerm> result = superImplodeParseNode(input, parseNode, startOffset);
+        // implodeParseNode from super (TreeImploder)
+        TreeImploder.SubTree<IStrategoTerm> result;
+        if (parseNode instanceof ICharacterNode) {
+            result = new TreeImploder.SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseNode).character()), null,
+                    parseNode.width(), true);
+        } else {
+            // implode injection
+//        @SuppressWarnings("unchecked") IncrementalParseNode parseNode = implodeInjection((IncrementalParseNode) parseForest);
+            IncrementalParseNode parseNode1 = (IncrementalParseNode) parseNode;
+            for (IncrementalDerivation derivation : parseNode1.getDerivations()) {
+                if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
+                    IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
+
+                    // Meta variables are injected:
+                    // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+                    if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+                        parseNode1 = injectedParseNode;
+                    }
+                }
+            }
+            IProduction production = parseNode1.production();
+            if (production.isContextFree() && !production.isSkippableInParseForest()) {
+                // applyDisambiguationFilters
+                List<IncrementalDerivation> filteredDerivations;
+                if (!parseNode1.isAmbiguous()) {
+                    filteredDerivations = Collections.singletonList(parseNode1.getFirstDerivation());
+                } else {
+                    filteredDerivations = parseNode1.getPreferredAvoidedDerivations();
+                }
+
+
+                if (filteredDerivations.size() > 1) {
+                    List<IStrategoTerm> trees = new ArrayList<>(filteredDerivations.size());
+                    List<TreeImploder.SubTree<IStrategoTerm>> subTrees = new ArrayList<>(filteredDerivations.size());
+
+                    if (production.isList()) {
+                        for (List<IncrementalParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
+                            TreeImploder.SubTree<IStrategoTerm> result1 = implodeDerivationChildren(input, production,
+                                    getChildParseForests(production, derivationParseForests), startOffset);
+                            trees.add(result1.tree);
+                            subTrees.add(result1);
+                        }
+                    } else {
+                        for (IncrementalDerivation derivation : filteredDerivations) {
+                            TreeImploder.SubTree<IStrategoTerm> result1 = implodeDerivation(input, derivation, startOffset);
+                            trees.add(result1.tree);
+                            subTrees.add(result1);
+                        }
+                    }
+
+                    result = new TreeImploder.SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false, true,
+                            false);
+                } else {
+                    result = implodeDerivation(input, filteredDerivations.get(0), startOffset);
+                }
+            } else {
+                int width = parseNode1.width();
+
+                // create lexical term
+                IStrategoTerm lexicalTerm;
+
+                if (production.isLayout() || production.isLiteral()) {
+                    lexicalTerm = null;
+                } else if (production.isLexical()) {
+                    String substring = input.inputString.substring(startOffset, startOffset + width);
+                    if (production.lhs() instanceof IMetaVarSymbol)
+                        lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
+                    else
+                        lexicalTerm = treeFactory.createStringTerminal(production.lhs(), substring);
+                } else {
+                    throw new RuntimeException("invalid term type");
+                }
+
+                result = new TreeImploder.SubTree<>(lexicalTerm, production,
+                        width, false);
+
+            }
+        }
+
+
         input.resultCache.cache.put(parseNode, result);
         return result;
-    }
-
-    // from TreeImploder
-    protected TreeImploder.SubTree<IStrategoTerm> superImplodeParseNode(IncrementalImplodeInput2 input, IncrementalParseForest parseForest, int startOffset) {
-        if (parseForest instanceof ICharacterNode) {
-            return new TreeImploder.SubTree<>(treeFactory.createCharacterTerminal(((ICharacterNode) parseForest).character()), null,
-                    parseForest.width(), true);
-        }
-
-        // implode injection
-//        @SuppressWarnings("unchecked") IncrementalParseNode parseNode = implodeInjection((IncrementalParseNode) parseForest);
-        IncrementalParseNode parseNode = (IncrementalParseNode) parseForest;
-        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
-            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
-                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
-
-                // Meta variables are injected:
-                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
-                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
-                    parseNode = injectedParseNode;
-                }
-            }
-        }
-
-
-        IProduction production = parseNode.production();
-
-        if (production.isContextFree() && !production.isSkippableInParseForest()) {
-            // applyDisambiguationFilters
-            List<IncrementalDerivation> filteredDerivations;
-            if (!parseNode.isAmbiguous()) {
-                filteredDerivations = Collections.singletonList(parseNode.getFirstDerivation());
-            } else {
-                filteredDerivations = parseNode.getPreferredAvoidedDerivations();
-            }
-
-
-            if (filteredDerivations.size() > 1) {
-                List<IStrategoTerm> trees = new ArrayList<>(filteredDerivations.size());
-                List<TreeImploder.SubTree<IStrategoTerm>> subTrees = new ArrayList<>(filteredDerivations.size());
-
-                if (production.isList()) {
-                    for (List<IncrementalParseForest> derivationParseForests : implodeAmbiguousLists(filteredDerivations)) {
-                        TreeImploder.SubTree<IStrategoTerm> result = implodeDerivationChildren(input, production,
-                                getChildParseForests(production, derivationParseForests), startOffset);
-                        trees.add(result.tree);
-                        subTrees.add(result);
-                    }
-                } else {
-                    for (IncrementalDerivation derivation : filteredDerivations) {
-                        TreeImploder.SubTree<IStrategoTerm> result = implodeDerivation(input, derivation, startOffset);
-                        trees.add(result.tree);
-                        subTrees.add(result);
-                    }
-                }
-
-                return new TreeImploder.SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false, true,
-                        false);
-            } else
-                return implodeDerivation(input, filteredDerivations.get(0), startOffset);
-        } else {
-            int width = parseNode.width();
-
-            // create lexical term
-            IStrategoTerm lexicalTerm;
-
-            if (production.isLayout() || production.isLiteral()) {
-                lexicalTerm = null;
-            } else if (production.isLexical()) {
-                String substring = input.inputString.substring(startOffset, startOffset + width);
-                if (production.lhs() instanceof IMetaVarSymbol)
-                    lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
-                else
-                    lexicalTerm = treeFactory.createStringTerminal(production.lhs(), substring);
-            } else {
-                throw new RuntimeException("invalid term type");
-            }
-
-            return new TreeImploder.SubTree<>(lexicalTerm, production,
-                    width, false);
-
-        }
     }
 
     // From TreeImploder
