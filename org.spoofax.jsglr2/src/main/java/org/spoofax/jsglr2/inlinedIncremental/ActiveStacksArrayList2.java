@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.stack.collections;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.IParserNotification;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
+import org.spoofax.jsglr2.stack.collections.IActiveStacks;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ActiveStacksArrayList2
     implements IActiveStacks<HybridStackNode2>

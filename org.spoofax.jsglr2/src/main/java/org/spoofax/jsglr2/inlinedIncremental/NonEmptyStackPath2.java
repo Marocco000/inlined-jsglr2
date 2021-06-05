@@ -1,7 +1,4 @@
-package org.spoofax.jsglr2.stack.paths;
-
-import org.spoofax.jsglr2.stack.StackLink2;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 public class NonEmptyStackPath2
 //        <ParseForest, StackNode extends IStackNode> extends StackPath2<ParseForest, StackNode> {

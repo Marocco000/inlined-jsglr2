@@ -1,23 +1,11 @@
-package org.spoofax.jsglr2.incremental.parseforest;
+package org.spoofax.jsglr2.inlinedIncremental;
 
-import static org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode.NO_STATE;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
-import org.metaborg.parsetable.productions.IProduction;
-import org.metaborg.parsetable.productions.ProductionType;
-import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.incremental.IncrementalParseState2;
-import org.spoofax.jsglr2.messages.SourceRegion;
-import org.spoofax.jsglr2.parseforest.*;
-import org.spoofax.jsglr2.parser.Position;
-import org.spoofax.jsglr2.parser.observing.IParserNotification;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 public class IncrementalParseForestManager2 {
 //    protected final ParserObserving<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observing;

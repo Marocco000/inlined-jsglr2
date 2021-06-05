@@ -1,11 +1,10 @@
-package org.spoofax.jsglr2.stack.hybrid;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink2;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class HybridStackNode2

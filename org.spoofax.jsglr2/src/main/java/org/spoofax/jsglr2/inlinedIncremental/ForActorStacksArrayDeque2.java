@@ -1,15 +1,14 @@
-package org.spoofax.jsglr2.stack.collections;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import java.util.*;
 
 import com.google.common.collect.Iterables;
-import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.parser.observing.IParserNotification;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
+import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public class ForActorStacksArrayDeque2 implements IForActorStacks<HybridStackNode2> {
 

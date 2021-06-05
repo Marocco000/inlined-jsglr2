@@ -1,14 +1,9 @@
-package org.spoofax.jsglr2.stack.hybrid;
+package org.spoofax.jsglr2.inlinedIncremental;
 
-import org.spoofax.jsglr2.incremental.IncrementalParseState2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForestManager2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
-import org.spoofax.jsglr2.parser.observing.IParserNotification;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
-import org.spoofax.jsglr2.stack.StackLink2;
-import org.spoofax.jsglr2.stack.paths.*;
 
 import java.util.List;
 

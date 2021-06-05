@@ -10,11 +10,11 @@ import org.spoofax.terms.TermFactory;
 
 import com.google.common.collect.Iterables;
 
-public class StrategoTermTreeFactoryInlined {
+public class StrategoTermTreeFactory2 {
 
     private final ITermFactory termFactory;
 
-    public StrategoTermTreeFactoryInlined() {
+    public StrategoTermTreeFactory2() {
         this.termFactory = new TermFactory();
     }
 

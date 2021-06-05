@@ -1,7 +1,4 @@
-package org.spoofax.jsglr2.stack.paths;
-
-import org.spoofax.jsglr2.stack.StackLink2;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 public abstract class StackPath2 {
 

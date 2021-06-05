@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.incremental;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
@@ -15,7 +15,6 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
 
 import java.util.Collection;
 import java.util.List;

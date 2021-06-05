@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.recovery.IBacktrackChoicePoint;
 import org.spoofax.jsglr2.stack.IStackNode;
 import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.StackLink2;
+import org.spoofax.jsglr2.inlinedIncremental.StackLink2;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 public interface IParserObserver

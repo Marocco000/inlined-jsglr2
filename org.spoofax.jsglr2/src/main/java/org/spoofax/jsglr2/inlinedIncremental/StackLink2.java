@@ -1,7 +1,7 @@
-package org.spoofax.jsglr2.stack;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
+import org.spoofax.jsglr2.inlinedIncremental.HybridStackNode2;
 
 public class StackLink2 {
 

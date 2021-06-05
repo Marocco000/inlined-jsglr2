@@ -59,7 +59,7 @@ public abstract class IncrementalTreeImploder
     }
 
     public static class ResultCache<ParseForest extends IParseForest, Tree> {
-        protected final WeakHashMap<ParseForest, SubTree<Tree>> cache = new WeakHashMap<>();
+        public final WeakHashMap<ParseForest, SubTree<Tree>> cache = new WeakHashMap<>();
     }
 
 }

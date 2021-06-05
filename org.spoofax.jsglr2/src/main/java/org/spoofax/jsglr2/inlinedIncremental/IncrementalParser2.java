@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.incremental;
+package org.spoofax.jsglr2.inlinedIncremental;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.size;
@@ -19,6 +19,7 @@ import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
+import org.spoofax.jsglr2.incremental.EditorUpdate;
 import org.spoofax.jsglr2.incremental.actions.GotoShift;
 import org.spoofax.jsglr2.incremental.diff.IStringDiff;
 import org.spoofax.jsglr2.incremental.diff.JGitHistogramDiff;
@@ -34,13 +35,6 @@ import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink2;
-import org.spoofax.jsglr2.stack.collections.*;
-
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode2;
-import org.spoofax.jsglr2.stack.paths.EmptyStackPath2;
-import org.spoofax.jsglr2.stack.paths.NonEmptyStackPath2;
-import org.spoofax.jsglr2.stack.paths.StackPath2;
 
 public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
