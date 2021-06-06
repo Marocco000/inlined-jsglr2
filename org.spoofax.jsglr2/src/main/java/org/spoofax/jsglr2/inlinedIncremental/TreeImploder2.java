@@ -67,12 +67,37 @@ public class TreeImploder2 {
                     parseForest.width(), true);
         }
 
-        @SuppressWarnings("unchecked") IncrementalParseNode parseNode = implodeInjection((IncrementalParseNode) parseForest);
+        @SuppressWarnings("unchecked") IncrementalParseNode parseNode = (IncrementalParseNode) parseForest;
+        IncrementalParseNode result1 = null;
+        // implode injection
+        for (IncrementalDerivation derivation1 : ((IncrementalParseNode) parseForest).getDerivations()) {
+            if (derivation1.parseForests().length == 1 && (derivation1.parseForests()[0] instanceof IParseNode)) {
+                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation1.parseForests()[0];
+
+                // Meta variables are injected:
+                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+                    parseNode = injectedParseNode;
+                    break;
+                }
+            }
+        }
+//        if (result1 == null) {
+//            result1 = (IncrementalParseNode) parseForest;
+//        }
+//
+//        @SuppressWarnings("unchecked") IncrementalParseNode parseNode = result1;
 
         IProduction production = parseNode.production();
 
         if (production.isContextFree() && !production.isSkippableInParseForest()) {
-            List<IncrementalDerivation> filteredDerivations = applyDisambiguationFilters(parseNode);
+            List<IncrementalDerivation> filteredDerivations;
+            // apply disambiguation filter
+            if (!parseNode.isAmbiguous()) {
+                filteredDerivations = Collections.singletonList(parseNode.getFirstDerivation());
+            } else {
+                filteredDerivations = parseNode.getPreferredAvoidedDerivations();
+            }
 
             if (filteredDerivations.size() > 1) {
                 List<IStrategoTerm> trees = new ArrayList<>(filteredDerivations.size());
@@ -87,7 +112,13 @@ public class TreeImploder2 {
                     }
                 } else {
                     for (IncrementalDerivation derivation : filteredDerivations) {
-                        TreeImploder.SubTree<IStrategoTerm> result = implodeDerivation(input, derivation, startOffset);
+                        // implode derivation
+                        IProduction production1 = derivation.production();
+
+                        if (!production1.isContextFree())
+                            throw new RuntimeException("non context free imploding not supported");
+
+                        TreeImploder.SubTree<IStrategoTerm> result = implodeDerivationChildren(input, production1, getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests())), startOffset);
                         trees.add(result.tree);
                         subTrees.add(result);
                     }
@@ -95,24 +126,47 @@ public class TreeImploder2 {
 
                 return new TreeImploder.SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false, true,
                         false);
-            } else
-                return implodeDerivation(input, filteredDerivations.get(0), startOffset);
+            } else {
+                IncrementalDerivation derivation = filteredDerivations.get(0);
+                // implode derivation
+                IProduction production1 = derivation.production();
+
+                if (!production1.isContextFree())
+                    throw new RuntimeException("non context free imploding not supported");
+
+                return implodeDerivationChildren(input, production1, getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests())), startOffset);
+            }
         } else {
             int width = parseNode.width();
 
-            return new TreeImploder.SubTree<>(createLexicalTerm(production, input.inputString, startOffset, width), production,
+            IStrategoTerm lexicalTerm;
+            // create lexical term
+            if (production.isLayout() || production.isLiteral()) {
+                lexicalTerm = null;
+            } else if (production.isLexical()) {
+                String substring = input.inputString.substring(startOffset, startOffset + width);
+                if (production.lhs() instanceof IMetaVarSymbol)
+                    lexicalTerm = treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
+                else
+                    lexicalTerm = treeFactory.createStringTerminal(production.lhs(), substring);
+            } else {
+                throw new RuntimeException("invalid term type");
+            }
+
+            return new TreeImploder.SubTree<>(lexicalTerm, production,
                     width, false);
         }
     }
 
-    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInput2 input, IncrementalDerivation derivation, int startOffset) {
-        IProduction production = derivation.production();
-
-        if (!production.isContextFree())
-            throw new RuntimeException("non context free imploding not supported");
-
-        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
-    }
+//    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInput2 input, IncrementalDerivation derivation, int startOffset) {
+//        // implode derivation
+//        IProduction production = derivation.production();
+//
+//        if (!production.isContextFree())
+//            throw new RuntimeException("non context free imploding not supported");
+//
+//        return implodeDerivationChildren(input, production, getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests())), startOffset);
+//    }
 
     protected TreeImploder.SubTree<IStrategoTerm> implodeDerivationChildren(IncrementalImplodeInput2 input, IProduction production,
                                                                             List<IncrementalParseForest> childParseForests, int startOffset) {
@@ -130,14 +184,28 @@ public class TreeImploder2 {
             startOffset += subTree.width;
         }
 
-        IStrategoTerm contextFreeTerm = createContextFreeTerm(production, childASTs);
+        IStrategoTerm contextFreeTerm;
+        // create context free term
+        String constructor = production.constructor();
+
+        if (constructor != null)
+            contextFreeTerm = treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
+        else if (production.isOptional())
+            contextFreeTerm = treeFactory.createOptional(production.lhs(), childASTs);
+        else if (production.isList())
+            contextFreeTerm = treeFactory.createList(childASTs);
+        else if (childASTs.size() == 1)
+            contextFreeTerm = childASTs.get(0);
+        else
+            contextFreeTerm = treeFactory.createTuple(childASTs);
+
         return new TreeImploder.SubTree<>(contextFreeTerm, subTrees, production,
                 childASTs.size() == 1 && contextFreeTerm == childASTs.get(0));
     }
 
-    protected List<IncrementalParseForest> getChildParseForests(IncrementalDerivation derivation) {
-        return getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests()));
-    }
+//    protected List<IncrementalParseForest> getChildParseForests(IncrementalDerivation derivation) {
+//        return getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests()));
+//    }
 
     protected List<IncrementalParseForest> getChildParseForests(IProduction production, List<IncrementalParseForest> parseForests) {
         // Make sure lists are flattened
@@ -155,7 +223,14 @@ public class TreeImploder2 {
 
                 // If child is also a list, add all its children to the front of the unprocessed list
                 if (childProduction.isList() && childProduction.constructor() == null) {
-                    List<IncrementalDerivation> filteredDerivations = applyDisambiguationFilters(childParseNode);
+                    List<IncrementalDerivation> filteredDerivations;
+                    // apply disambiguation filter
+                    if (!childParseNode.isAmbiguous()) {
+                        filteredDerivations = Collections.singletonList(childParseNode.getFirstDerivation());
+                    } else {
+                        filteredDerivations = childParseNode.getPreferredAvoidedDerivations();
+                    }
+
                     if (filteredDerivations.size() <= 1) {
                         listQueueTodo.addAll(0, Arrays.asList(filteredDerivations.get(0).parseForests()));
                         continue;
@@ -171,34 +246,36 @@ public class TreeImploder2 {
         }
     }
 
-    protected IStrategoTerm createLexicalTerm(IProduction production, String inputString, int startOffset, int width) {
-        if (production.isLayout() || production.isLiteral()) {
-            return null;
-        } else if (production.isLexical()) {
-            String substring = inputString.substring(startOffset, startOffset + width);
-            if (production.lhs() instanceof IMetaVarSymbol)
-                return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
-            else
-                return treeFactory.createStringTerminal(production.lhs(), substring);
-        } else {
-            throw new RuntimeException("invalid term type");
-        }
-    }
+//    protected IStrategoTerm createLexicalTerm(IProduction production, String inputString, int startOffset, int width) {
+//        // create lexical term
+//        if (production.isLayout() || production.isLiteral()) {
+//            return null;
+//        } else if (production.isLexical()) {
+//            String substring = inputString.substring(startOffset, startOffset + width);
+//            if (production.lhs() instanceof IMetaVarSymbol)
+//                return treeFactory.createMetaVar((IMetaVarSymbol) production.lhs(), substring);
+//            else
+//                return treeFactory.createStringTerminal(production.lhs(), substring);
+//        } else {
+//            throw new RuntimeException("invalid term type");
+//        }
+//    }
 
-    protected IStrategoTerm createContextFreeTerm(IProduction production, List<IStrategoTerm> childASTs) {
-        String constructor = production.constructor();
-
-        if (constructor != null)
-            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
-        else if (production.isOptional())
-            return treeFactory.createOptional(production.lhs(), childASTs);
-        else if (production.isList())
-            return treeFactory.createList(childASTs);
-        else if (childASTs.size() == 1)
-            return childASTs.get(0);
-        else
-            return treeFactory.createTuple(childASTs);
-    }
+//    protected IStrategoTerm createContextFreeTerm(IProduction production, List<IStrategoTerm> childASTs) {
+//        // create context free term
+//        String constructor = production.constructor();
+//
+//        if (constructor != null)
+//            return treeFactory.createNonTerminal(production.lhs(), constructor, childASTs);
+//        else if (production.isOptional())
+//            return treeFactory.createOptional(production.lhs(), childASTs);
+//        else if (production.isList())
+//            return treeFactory.createList(childASTs);
+//        else if (childASTs.size() == 1)
+//            return childASTs.get(0);
+//        else
+//            return treeFactory.createTuple(childASTs);
+//    }
 
 
 
@@ -237,28 +314,31 @@ public class TreeImploder2 {
         return alternatives;
     }
 
-    protected IncrementalParseNode implodeInjection(IncrementalParseNode parseNode) {
-        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
-            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
-                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
+//    protected IncrementalParseNode implodeInjection(IncrementalParseNode parseNode) {
+//        // implode injection
+//        for (IncrementalDerivation derivation : parseNode.getDerivations()) {
+//            if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
+//                IncrementalParseNode injectedParseNode = (IncrementalParseNode) derivation.parseForests()[0];
+//
+//                // Meta variables are injected:
+//                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
+//                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
+//                    return injectedParseNode;
+//                }
+//            }
+//        }
+//
+//        return parseNode;
+//    }
 
-                // Meta variables are injected:
-                // https://github.com/metaborg/strategoxt/blob/master/strategoxt/stratego-libraries/sglr/lib/stratego/asfix/implode/injection.str#L68-L69
-                if (injectedParseNode.production().lhs() instanceof IMetaVarSymbol) {
-                    return injectedParseNode;
-                }
-            }
-        }
-
-        return parseNode;
-    }
-
-    protected List<IncrementalDerivation> applyDisambiguationFilters(IncrementalParseNode parseNode) {
-        if (!parseNode.isAmbiguous())
-            return Collections.singletonList(parseNode.getFirstDerivation());
-
-        return parseNode.getPreferredAvoidedDerivations();
-    }
+    // TODO (MARA) optimize: 2 application spots up, if (!parseNode.isAmbiguous()) is in .getPreferredAvoidedDerivations(); as well
+//    protected List<IncrementalDerivation> applyDisambiguationFilters(IncrementalParseNode parseNode) {
+//        // apply disambiguation filter
+//        if (!parseNode.isAmbiguous())
+//            return Collections.singletonList(parseNode.getFirstDerivation());
+//
+//        return parseNode.getPreferredAvoidedDerivations();
+//    }
 
 
     // TODO (MARA) use hardcoded version ??
