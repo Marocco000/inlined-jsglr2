@@ -42,28 +42,28 @@ public class IncrementalStrategoTermImploder2 {
         this.regularImplode = new TreeImploder2(treeFactory);
     }
 
-    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache) {
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ResultCache2, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest, ResultCache2 resultCache) {
         return implode(new JSGLR2Request(input, fileName), parseForest, resultCache);
     }
 
-    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(JSGLR2Request request, IncrementalParseForest parseForest) {
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ResultCache2, IStrategoTerm> implode(JSGLR2Request request, IncrementalParseForest parseForest) {
         return implode(request, parseForest, null);
     }
 
-    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest) {
+    ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ResultCache2, IStrategoTerm> implode(String input, String fileName, IncrementalParseForest parseForest) {
         return implode(new JSGLR2Request(input, fileName), parseForest);
     }
 
 
-    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>, IStrategoTerm>
-    implode(JSGLR2Request request, IncrementalParseForest parseForest, IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> previousResult) {
+    public ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ResultCache2, IStrategoTerm>
+    implode(JSGLR2Request request, IncrementalParseForest parseForest, ResultCache2 previousResult) {
 
         if (!request.isCacheable()) {
             ImplodeResult<TreeImploder.SubTree<IStrategoTerm>, Void, IStrategoTerm> result = regularImplode.implode(request, parseForest);
             return new ImplodeResult<>(result.intermediateResult(), null, result.ast(), result.isAmbiguous());
         }
 
-        IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm> resultCache = previousResult == null ? new IncrementalTreeImploder.ResultCache<IncrementalParseForest, IStrategoTerm>() : previousResult;
+        ResultCache2 resultCache = previousResult == null ? new ResultCache2() : previousResult;
 
         TreeImploder.SubTree<IStrategoTerm> result =
                 implodeParseNode(new IncrementalImplodeInput2(request.input, resultCache), parseForest, 0);

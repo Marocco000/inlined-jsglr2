@@ -2,11 +2,13 @@ package org.spoofax.jsglr2.imploder.incremental;
 
 import java.util.WeakHashMap;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TreeImploder;
 import org.spoofax.jsglr2.imploder.input.IImplodeInputFactory;
 import org.spoofax.jsglr2.imploder.treefactory.ITreeFactory;
+import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
 import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.IParseNode;
@@ -62,4 +64,7 @@ public abstract class IncrementalTreeImploder
         public final WeakHashMap<ParseForest, SubTree<Tree>> cache = new WeakHashMap<>();
     }
 
+//    public static class ResultCache2{
+//        public final WeakHashMap<IncrementalParseForest, SubTree<IStrategoTerm>> cache = new WeakHashMap<>();
+//    }
 }
