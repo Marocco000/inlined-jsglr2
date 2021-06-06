@@ -119,7 +119,14 @@ public class IncrementalStrategoTermImploder2 {
                         }
                     } else {
                         for (IncrementalDerivation derivation : filteredDerivations) {
-                            TreeImploder.SubTree<IStrategoTerm> result1 = implodeDerivation(input, derivation, startOffset);
+                            // implode derivation
+                            IProduction production1 = derivation.production();
+
+                            if (!production1.isContextFree())
+                                throw new RuntimeException("non context free imploding not supported");
+
+//        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
+                            TreeImploder.SubTree<IStrategoTerm> result1 = implodeDerivationChildren(input, production1, getChildParseForests(production1, Arrays.asList(derivation.parseForests())), startOffset);
                             trees.add(result1.tree);
                             subTrees.add(result1);
                         }
@@ -128,7 +135,15 @@ public class IncrementalStrategoTermImploder2 {
                     result = new TreeImploder.SubTree<>(treeFactory.createAmb(trees), subTrees, null, subTrees.get(0).width, false, true,
                             false);
                 } else {
-                    result = implodeDerivation(input, filteredDerivations.get(0), startOffset);
+                    IncrementalDerivation derivation = filteredDerivations.get(0);
+                    // implode derivation
+                    IProduction production1 = derivation.production();
+
+                    if (!production1.isContextFree())
+                        throw new RuntimeException("non context free imploding not supported");
+
+//        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
+                    result = implodeDerivationChildren(input, production1, getChildParseForests(production1, Arrays.asList(derivation.parseForests())), startOffset);
                 }
             } else {
                 int width = parseNode1.width();
@@ -161,15 +176,16 @@ public class IncrementalStrategoTermImploder2 {
 
     // From TreeImploder
 
-    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInput2 input, IncrementalDerivation derivation, int startOffset) {
-        IProduction production = derivation.production();
-
-        if (!production.isContextFree())
-            throw new RuntimeException("non context free imploding not supported");
-
-//        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
-        return implodeDerivationChildren(input, production, getChildParseForests(derivation.production(), Arrays.asList(derivation.parseForests())), startOffset);
-    }
+//    protected TreeImploder.SubTree<IStrategoTerm> implodeDerivation(IncrementalImplodeInput2 input, IncrementalDerivation derivation, int startOffset) {
+//        // implode derivation
+//        IProduction production = derivation.production();
+//
+//        if (!production.isContextFree())
+//            throw new RuntimeException("non context free imploding not supported");
+//
+////        return implodeDerivationChildren(input, production, getChildParseForests(derivation), startOffset);
+//        return implodeDerivationChildren(input, production, getChildParseForests(production, Arrays.asList(derivation.parseForests())), startOffset);
+//    }
 
     protected TreeImploder.SubTree<IStrategoTerm> implodeDerivationChildren(IncrementalImplodeInput2 input, IProduction production,
                                                                             List<IncrementalParseForest> childParseForests, int startOffset) {
