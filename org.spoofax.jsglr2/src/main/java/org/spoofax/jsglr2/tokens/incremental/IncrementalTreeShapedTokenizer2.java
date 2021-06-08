@@ -16,8 +16,10 @@ import java.util.List;
 import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_NO_TOKEN_KIND;
 import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
-public class IncrementalTreeShapedTokenizer2
-        implements ITokenizer<TreeImploder.SubTree<IStrategoTerm>, IncrementalTreeTokens> {
+public class IncrementalTreeShapedTokenizer2{
+    TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request request, TreeImploder.SubTree<IStrategoTerm> tree) {
+        return tokenize(request, tree, null);
+    }
 
     public TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request input,
                                                           TreeImploder.SubTree<IStrategoTerm> tree, IncrementalTreeTokens previousResult) {
