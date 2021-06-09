@@ -17,11 +17,11 @@ import static org.spoofax.jsglr.client.imploder.IToken.Kind.TK_NO_TOKEN_KIND;
 import static org.spoofax.jsglr2.tokens.treeshaped.TreeTokens.EMPTY_RANGE;
 
 public class IncrementalTreeShapedTokenizer2{
-    TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request request, TreeImploder.SubTree<IStrategoTerm> tree) {
-        return tokenize(request, tree, null);
-    }
+//    TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request request, TreeImploder.SubTree<IStrategoTerm> tree) {
+//        return tokenize(request, tree, null);
+//    }
 
-    public TokenizeResult<IncrementalTreeTokens> tokenize(JSGLR2Request input,
+    public IncrementalTreeTokens tokenize(JSGLR2Request input,
                                                           TreeImploder.SubTree<IStrategoTerm> tree, IncrementalTreeTokens previousResult) {
 
         IncrementalTreeTokens tokens =
@@ -63,7 +63,8 @@ public class IncrementalTreeShapedTokenizer2{
         tokens.endToken.tree = res.children.get(2);
         tokens.tree = res;
 
-        return new TokenizeResult<>(tokens);
+//        return new TokenizeResult<>(tokens);
+        return tokens;
     }
 
     // from AbstractTreeShapedTokenizer
