@@ -7,7 +7,6 @@ import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.*;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
-import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder2;
 import org.spoofax.jsglr2.imploder.incremental.IncrementalTreeImploder;
 import org.spoofax.jsglr2.parseforest.*;
 import org.spoofax.jsglr2.parser.IObservableParser;
@@ -19,7 +18,6 @@ import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.TokenizerVariant;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
-import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer2;
 import org.spoofax.jsglr2.tokens.treeshaped.TreeShapedTokenizer;
 
 public class JSGLR2Variant {
@@ -199,7 +197,7 @@ public class JSGLR2Variant {
                     false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
-    
+
         inlinedIncremental(
               new InlinedIncrementalJSGLR2Variant()),
         incremental(
