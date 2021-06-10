@@ -2,22 +2,16 @@ package org.spoofax.jsglr2.inlinedIncremental;
 
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalDerivation;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
-import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseNode;
 import org.spoofax.jsglr2.inputstack.incremental.IIncrementalInputStack;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.ParseException;
 
-import org.spoofax.jsglr2.parser.observing.IParserNotification;
-import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
 import java.util.Collection;
-import java.util.List;
 
 public class IncrementalParseState2
         extends AbstractParseState<IIncrementalInputStack, HybridStackNode2> {//implements IIncrementalParseState {
@@ -63,12 +57,12 @@ public class IncrementalParseState2
 
 
     public void nextParseRound(
-                List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers
+//                List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers
     ) throws ParseException {
-        if(!observers.isEmpty()) {
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.parseRound(this, activeStacks)).notify(observer1);
-        }
+//        if(!observers.isEmpty()) {
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.parseRound(this, activeStacks)).notify(observer1);
+//        }
 
         setMultipleStates(activeStacks.isMultiple());
     }

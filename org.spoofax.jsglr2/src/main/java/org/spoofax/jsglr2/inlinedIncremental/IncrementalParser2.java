@@ -55,7 +55,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     //    public List<ReduceActionFilter<IncrementalParseForest, HybridStackNode2, IncrementalParseState2>> reduceActionFilters;
 
-    public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
+//    public final List<IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>> observers;
 
     public IncrementalParser2(
 //                             ParseStateFactory<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, IIncrementalInputStack, HybridStackNode<IncrementalParseForest>, ParseState> parseStateFactory,
@@ -69,7 +69,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     ) {
 
 //        this.observing = new ParserObserving<>();
-        this.observers = new ArrayList<>();
+//        this.observers = new ArrayList<>();
 //        this.parseStateFactory = IncrementalParseState.factory(new ActiveStacksFactory(ActiveStacksRepresentation.ArrayList), new ForActorStacksFactory(ForActorStacksRepresentation.ArrayDeque));
         this.parseTable = parseTable;
 
@@ -106,21 +106,21 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
         IncrementalParseState2 parseState = new IncrementalParseState2(request,
                 new EagerIncrementalInputStack(updatedTree, request.input),
-//                new ActiveStacksArrayList2(observing),
-//                new ForActorStacksArrayDeque2(observing));
-                new ActiveStacksArrayList2(observers),
-                new ForActorStacksArrayDeque2(observers));
+//                new ActiveStacksArrayList2(observers),
+//                new ForActorStacksArrayDeque2(observers));
+                new ActiveStacksArrayList2(),
+                new ForActorStacksArrayDeque2());
 
 
-        notify(observer -> observer.parseStart(parseState));
+//        notify(observer -> observer.parseStart(parseState));
 
         // create stack node
         HybridStackNode2 newStackNode = new HybridStackNode2(parseTable.getStartState());
         // notify new stack node
-        if(!observers.isEmpty()) {
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackNode(newStackNode)).notify(observer1);
-        }
+//        if(!observers.isEmpty()) {
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackNode(newStackNode)).notify(observer1);
+//        }
 
         HybridStackNode2 initialStackNode = newStackNode;
 
@@ -231,7 +231,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
             ParseSuccess<IncrementalParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
 
-            notify(observer -> observer.success(success));
+//            notify(observer -> observer.success(success));
 
             return success;
         }
@@ -242,7 +242,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
     }
 
     public ParseFailure<IncrementalParseForest> failure(ParseFailure<IncrementalParseForest> failure) {
-        notify(observer -> observer.failure(failure));
+//        notify(observer -> observer.failure(failure));
 
         return failure;
     }
@@ -259,11 +259,12 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
     public void parseCharacter(IncrementalParseState2 parseState) throws ParseException {
 //        parseState.nextParseRound(observing);
-        parseState.nextParseRound(observers);
+//        parseState.nextParseRound(observers);
+        parseState.nextParseRound();
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);
 
-        notify(observer -> observer.forActorStacks(parseState.forActorStacks));
+//        notify(observer -> observer.forActorStacks(parseState.forActorStacks));
 
         processForActorStacks(parseState);
 
@@ -274,12 +275,12 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         while (parseState.forActorStacks.nonEmpty()) {
             HybridStackNode2 stack = parseState.forActorStacks.remove();
 
-            notify(observer -> observer.handleForActorStack(stack, parseState.forActorStacks));
+//            notify(observer -> observer.handleForActorStack(stack, parseState.forActorStacks));
 
             if (!stack.allLinksRejected())
                 actor(stack, parseState);
-            else
-                notify(observer -> observer.skipRejectedStack(stack));
+//            else
+//                notify(observer -> observer.skipRejectedStack(stack));
         }
     }
 
@@ -296,15 +297,15 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         // that would mean that this node was created when the parser was in multiple states.
         while (!parseState.inputStack.getNode().isReusable()
                 || !parseState.inputStack.getNode().isTerminal() && isEmpty(actions) && parseState.forShifter.isEmpty()) {
-            notify(observer -> {
-                IncrementalParseForest node = parseState.inputStack.getNode();
-                observer.breakDown(parseState.inputStack,
-                        node instanceof IParseNode && ((IParseNode<?, ?>) node).production() == null ? TEMPORARY
-                                : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE
-                                : IRREUSABLE);
-            });
+//            notify(observer -> {
+//                IncrementalParseForest node = parseState.inputStack.getNode();
+//                observer.breakDown(parseState.inputStack,
+//                        node instanceof IParseNode && ((IParseNode<?, ?>) node).production() == null ? TEMPORARY
+//                                : node.isReusable() ? node.isReusable(stack.state()) ? NO_ACTIONS : WRONG_STATE
+//                                : IRREUSABLE);
+//            });
             parseState.inputStack.breakDown();
-            notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
+//            notify(observer -> observer.parseRound(parseState, parseState.activeStacks));
             actions = getActions(stack, parseState);
         }
 
@@ -312,7 +313,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             parseState.setMultipleStates(true);
 
         Iterable<IAction> finalActions = actions;
-        notify(observer -> observer.actor(stack, parseState, finalActions));
+//        notify(observer -> observer.actor(stack, parseState, finalActions));
 
         for (IAction action : actions)
             actor(stack, parseState, action);
@@ -373,7 +374,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 // add for shifter
                 ForShifterElement<HybridStackNode2> forShifterElement = new ForShifterElement<>(stack, shiftState);
 
-                notify(observer1 -> observer1.addForShifter(forShifterElement));
+//                notify(observer1 -> observer1.addForShifter(forShifterElement));
 
                 parseState.forShifter.add(forShifterElement);
 
@@ -386,7 +387,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
                 if (!(reduceAction.production().isRecovery() || reduceAction.production().isCompletion())) {
 
-                    notify(observer -> observer.doReductions(parseState, stack, reduceAction));
+//                    notify(observer -> observer.doReductions(parseState, stack, reduceAction));
 
 //                    reduceManager.doReductionsHelper(observing, parseState, stack, reduceAction, null);
                     // find all paths of a given length
@@ -426,7 +427,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             case ACCEPT:
                 parseState.acceptingStack = stack;
 
-                notify(observer -> observer.accept(stack));
+//                notify(observer -> observer.accept(stack));
 
                 break;
         }
@@ -463,7 +464,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             }
 
             StackLink2 finalDirectLink = directLink;
-            notify(observer -> observer.directLinkFound(parseState, finalDirectLink));
+//            notify(observer -> observer.directLinkFound(parseState, finalDirectLink));
 
             if (directLink != null) {
                 // reducer existing stack with direct link
@@ -475,12 +476,12 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     directLink.reject();
 
                     // notify reject link
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
-                            StackLink2 finalDirectLink1 = directLink;
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(finalDirectLink1)).notify(observer1);
-                        }
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
+//                            StackLink2 finalDirectLink1 = directLink;
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(finalDirectLink1)).notify(observer1);
+//                        }
+//                    }
                 }
                 else if (!directLink.isRejected()
                         && !reduce.production().isSkippableInParseForest()) {
@@ -490,16 +491,16 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     IncrementalDerivation derivation = new IncrementalDerivation(production, reduce.productionType(), parseForests);
 
                     // notify observers on created derivation
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(derivation, production, derivation.parseForests)).notify(observer1);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(derivation, production, derivation.parseForests)).notify(observer1);
+//                    }
 
                     // notify observers on added derivation
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, derivation)).notify(observer1);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, derivation)).notify(observer1);
+//                    }
 
                     // add derivation
                     parseNode.addDerivation(derivation);
@@ -516,19 +517,19 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     gotoStack.addLink(newDirectLinkToActiveStateWithGoto); // ad link
 
                     // notify created stack link
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer11);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer11);
+//                    }
 
                     // reject link
                     newDirectLinkToActiveStateWithGoto.reject();
 
                     // notify reject link
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer1);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer1);
+//                    }
                 } else {
                     // get parse node
                     IncrementalParseNode parseNode;
@@ -543,10 +544,10 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                         IncrementalDerivation derivation = new IncrementalDerivation(production1, reduce.productionType(), parseForests);
 
                         // notify observers on created derivation
-                        if(!observers.isEmpty()) {
-                            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
-                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createDerivation(derivation, production1, derivation.parseForests)).notify(observer11);
-                        }
+//                        if(!observers.isEmpty()) {
+//                            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
+//                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createDerivation(derivation, production1, derivation.parseForests)).notify(observer11);
+//                        }
 
                         IProduction production = reduce.production();
 
@@ -555,11 +556,11 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                         IncrementalParseNode parseNode1 = new IncrementalParseNode(production, derivation, state);
 
                         // notify parse node creation
-                        if(!observers.isEmpty())
-                            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
-                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode1, production)).notify(observer1);
-                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode1, derivation)).notify(observer1);
-                            }
+//                        if(!observers.isEmpty())
+//                            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
+//                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode1, production)).notify(observer1);
+//                                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode1, derivation)).notify(observer1);
+//                            }
 
                         parseNode = parseNode1;
                     }
@@ -569,10 +570,10 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     gotoStack.addLink(newDirectLinkToActiveStateWithGoto); // ad link
 
                     // notify created stack link
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer1);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(newDirectLinkToActiveStateWithGoto)).notify(observer1);
+//                    }
                 }
 
                 for (HybridStackNode2 activeStackForLimitedReductions : parseState.activeStacks
@@ -583,7 +584,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
                         if (!(reduceAction.production().isRecovery() || reduceAction.production().isCompletion())) {
                             // if ! ignore reduce action
-                            notify(observer -> observer.doLimitedReductions(parseState, activeStackForLimitedReductions, reduceAction, newDirectLinkToActiveStateWithGoto));
+//                            notify(observer -> observer.doLimitedReductions(parseState, activeStackForLimitedReductions, reduceAction, newDirectLinkToActiveStateWithGoto));
 
                             // do reductionshelper
 //                        reduceManager.doReductionsHelper(observing, parseState, activeStackForLimitedReductions, reduceAction, link);
@@ -638,10 +639,10 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
             // create stack node
             HybridStackNode2 newStackWithGotoState = new HybridStackNode2(gotoState);
             // notify new stack node
-            if(!observers.isEmpty()) {
-                for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
-                    ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackNode(newStackWithGotoState)).notify(observer11);
-            }
+//            if(!observers.isEmpty()) {
+//                for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
+//                    ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackNode(newStackWithGotoState)).notify(observer11);
+//            }
 
             StackLink2 link;
             if (reduce.isRejectProduction()) {
@@ -651,19 +652,19 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 newStackWithGotoState.addLink(link); // ad link
 
                 // notify created stack link
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackLink(link)).notify(observer11);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createStackLink(link)).notify(observer11);
+//                }
 
                 // reject link
                 link.reject();
 
                 // notify reject link
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(link)).notify(observer1);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.rejectStackLink(link)).notify(observer1);
+//                }
             } else {
                 // get parse node
                 IncrementalParseNode parseNode;
@@ -678,10 +679,10 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     IncrementalDerivation derivation = new IncrementalDerivation(production1, reduce.productionType(), parseForests);
 
                     // notify observers on created derivation
-                    if(!observers.isEmpty()) {
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createDerivation(derivation, production1, derivation.parseForests)).notify(observer11);
-                    }
+//                    if(!observers.isEmpty()) {
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer11 : observers)
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer2 -> observer2.createDerivation(derivation, production1, derivation.parseForests)).notify(observer11);
+//                    }
 
                     IProduction production = reduce.production();
 
@@ -690,11 +691,11 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                     IncrementalParseNode parseNode1 = new IncrementalParseNode(production, derivation, state);
 
                     // notify parse node creation
-                    if(!observers.isEmpty())
-                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode1, production)).notify(observer1);
-                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode1, derivation)).notify(observer1);
-                        }
+//                    if(!observers.isEmpty())
+//                        for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers) {
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode1, production)).notify(observer1);
+//                            ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode1, derivation)).notify(observer1);
+//                        }
 
                     parseNode = parseNode1;
                 }
@@ -704,10 +705,10 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 newStackWithGotoState.addLink(link1); // ad link
 
                 // notify created stack link
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link1)).notify(observer1);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link1)).notify(observer1);
+//                }
 
             }
 
@@ -718,8 +719,8 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         }
 
         HybridStackNode2 finalGotoStack = gotoStack;
-        notify(
-                observer -> observer.reducer(parseState, activeStack, originStack, reduce, parseForests, finalGotoStack));
+//        notify(
+//                observer -> observer.reducer(parseState, activeStack, originStack, reduce, parseForests, finalGotoStack));
     }
 
     public void shifter(IncrementalParseState2 parseState) {
@@ -728,7 +729,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         // get node to shift
         IncrementalParseForest characterNode = parseState.inputStack.getNode();//getNodeToShift(parseState);
 
-        notify(observer -> observer.shifter(characterNode, parseState.forShifter));
+//        notify(observer -> observer.shifter(characterNode, parseState.forShifter));
 
         for (ForShifterElement<HybridStackNode2> forShifterElement : parseState.forShifter) {
             HybridStackNode2 gotoStack = parseState.activeStacks.findWithState(forShifterElement.state);
@@ -740,19 +741,19 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 gotoStack.addLink(link); // ad link
 
                 // notify created stack link
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link)).notify(observer1);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link)).notify(observer1);
+//                }
 
             } else {
                 // create stack node
                 HybridStackNode2 newStackNode = new HybridStackNode2(forShifterElement.state);
                 // notify new stack node
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackNode(newStackNode)).notify(observer1);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackNode(newStackNode)).notify(observer1);
+//                }
                 gotoStack = newStackNode; // TODO (Mara) use less attributions
 
                 // create stack link
@@ -760,16 +761,16 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                 gotoStack.addLink(link); // ad link
 
                 // notify created stack link
-                if(!observers.isEmpty()) {
-                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link)).notify(observer1);
-                }
+//                if(!observers.isEmpty()) {
+//                    for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                        ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createStackLink(link)).notify(observer1);
+//                }
 
                 parseState.activeStacks.add(gotoStack);
             }
 
             HybridStackNode2 finalGotoStack = gotoStack;
-            notify(observer -> observer.shift(parseState, forShifterElement.stack, finalGotoStack));
+//            notify(observer -> observer.shift(parseState, forShifterElement.stack, finalGotoStack));
         }
 
         parseState.forShifter.clear();
@@ -1037,15 +1038,15 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         IncrementalParseNode parseNode = new IncrementalParseNode(filtered);
 
         // notify observers on new changed parse node creation
-        if(!observers.isEmpty()) {
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer3 : observers) {
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, filtered)).notify(observer3);
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer2 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode, null)).notify(observer2);
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, parseNode.getFirstDerivation())).notify(observer1);
-            }
-        }
+//        if(!observers.isEmpty()) {
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer3 : observers) {
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, filtered)).notify(observer3);
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer2 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode, null)).notify(observer2);
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, parseNode.getFirstDerivation())).notify(observer1);
+//            }
+//        }
 
         return parseNode;
     }
@@ -1057,42 +1058,40 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
         for (int i = 0; i < chars.length; i++) {
             // create character node
-            IncrementalCharacterNode characterNode = new IncrementalCharacterNode(chars[i]);
-
             // notify observers on character node creation
-            if(!observers.isEmpty()) {
-                for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                    ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createCharacterNode(characterNode, characterNode.character)).notify(observer1);
-            }
+//            if(!observers.isEmpty()) {
+//                for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                    ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createCharacterNode(characterNode, characterNode.character)).notify(observer1);
+//            }
 
-            parseForests[i] = characterNode;
+            parseForests[i] = new IncrementalCharacterNode(chars[i]);
         }
         // create changed parse node
         IncrementalParseNode parseNode = new IncrementalParseNode(parseForests);
 
         // notify observers on new changed parse node creation
-        if(!observers.isEmpty()) {
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer3 : observers) {
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, parseForests)).notify(observer3);
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer2 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode, null)).notify(observer2);
-            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
-                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, parseNode.getFirstDerivation())).notify(observer1);
-            }
-        }
+//        if(!observers.isEmpty()) {
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer3 : observers) {
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createDerivation(parseNode.getFirstDerivation(), null, parseForests)).notify(observer3);
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer2 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.createParseNode(parseNode, null)).notify(observer2);
+//            for (IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer1 : observers)
+//                ((IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2>) observer -> observer.addDerivation(parseNode, parseNode.getFirstDerivation())).notify(observer1);
+//            }
+//        }
 
         return parseNode;
     }
     // END PROCESS UPDATES METHODS
 
     //observing
-    public void notify(IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> notification) {
-        if(observers.isEmpty())
-            return;
-
-        for(IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer : observers)
-            notification.notify(observer);
-    }
+//    public void notify(IParserNotification<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> notification) {
+////        if(observers.isEmpty())
+////            return;
+////
+////        for(IParserObserver<IncrementalParseForest, IncrementalDerivation, IncrementalParseNode, HybridStackNode2, IncrementalParseState2> observer : observers)
+////            notification.notify(observer);
+//    }
 
 
     // From HybridStackManager (not inlined because its recursive)
