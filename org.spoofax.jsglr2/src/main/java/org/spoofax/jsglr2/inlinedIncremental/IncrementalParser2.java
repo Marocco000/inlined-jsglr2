@@ -217,7 +217,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
         }
 
         if (size(actions) > 1)
-            parseState.setMultipleStates(true);
+            parseState.setMultipleStatesTrue();
 
 
         for (IAction action : actions)
@@ -301,7 +301,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
 
 
                     if (paths.size() > 1)
-                        parseState.setMultipleStates(true);
+                        parseState.setMultipleStatesTrue();
 
                     for (StackPath2 path : paths) {
                         HybridStackNode2 originStack = path.head();
@@ -443,7 +443,7 @@ public class IncrementalParser2 implements IParser<IncrementalParseForest> {
                                 paths = paths.stream().filter(path -> path.contains(newDirectLinkToActiveStateWithGoto)).collect(Collectors.toList());
 
                             if (paths.size() > 1)
-                                parseState.setMultipleStates(true);
+                                parseState.setMultipleStatesTrue();
 
                             for (StackPath2 path : paths) {
                                 HybridStackNode2 originStack2 = path.head();
