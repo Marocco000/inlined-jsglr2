@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Setup;
+import org.spoofax.jsglr2.InlinedIncrementalJSGLR2;
 import org.spoofax.jsglr2.JSGLR2ImplementationWithCache;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2MultiParser;
 import org.spoofax.jsglr2.benchmark.jsglr2.util.JSGLR2PersistentCache;
@@ -20,7 +21,8 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         Batch(false, new IntegrationVariant(standard.variant)),
         Elkhound(false, new IntegrationVariant(elkhound.variant)),
         Incremental(true, new IntegrationVariant(incremental.variant)),
-        IncrementalNoCache(false, new IntegrationVariant(incremental.variant));
+        IncrementalNoCache(false, new IntegrationVariant(incremental.variant)),
+        InlinedIncremental(true, new IntegrationVariant(inlinedIncremental.variant));
 
         boolean setupCache;
         IntegrationVariant integrationVariant;
@@ -31,7 +33,8 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
         }
     }
 
-    @Param({ "Batch", "Elkhound", "Incremental", "IncrementalNoCache" }) public ParserType parserType;
+//    @Param({ "Batch", "Elkhound", "Incremental", "IncrementalNoCache", "InlinedIncremental" }) public ParserType parserType;
+    @Param({ "Batch", "Incremental", "InlinedIncremental" }) public ParserType parserType;
 
     @Param({ "-1" }) public int i;
 
@@ -79,9 +82,16 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
                     prevString.put(input, content);
                     prevParse.put(input, parser.parseUnsafe(content, null));
                 } else {
-                    @SuppressWarnings({ "rawtypes", "unchecked" }) JSGLR2PersistentCache impl =
-                        new JSGLR2PersistentCache<>(((JSGLR2ImplementationWithCache) jsglr2), content);
-                    prevCacheImpl.put(input, impl);
+                    if (jsglr2 instanceof  JSGLR2ImplementationWithCache) {
+                        @SuppressWarnings({ "rawtypes", "unchecked" }) JSGLR2PersistentCache impl =
+                            new JSGLR2PersistentCache<>(((JSGLR2ImplementationWithCache) jsglr2), content);
+                        prevCacheImpl.put(input, impl);
+                    }
+                    if (jsglr2 instanceof InlinedIncrementalJSGLR2) {
+                        @SuppressWarnings({ "rawtypes", "unchecked" }) JSGLR2PersistentCache impl =
+                                new JSGLR2PersistentCache<>(null, ((InlinedIncrementalJSGLR2) jsglr2), content);
+                        prevCacheImpl.put(input, impl);
+                    }
                 }
             }
         }
