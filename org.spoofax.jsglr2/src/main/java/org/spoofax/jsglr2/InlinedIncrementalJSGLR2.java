@@ -3,6 +3,7 @@ package org.spoofax.jsglr2;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.*;
+import org.spoofax.jsglr2.imploder.incremental.IncrementalStrategoTermImploder;
 import org.spoofax.jsglr2.inlinedIncremental.IncrementalStrategoTermImploder2;
 import org.spoofax.jsglr2.inlinedIncremental.IncrementalParser2;
 import org.spoofax.jsglr2.incremental.parseforest.IncrementalParseForest;
@@ -12,6 +13,7 @@ import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeShapedTokenizer2;
 import org.spoofax.jsglr2.tokens.incremental.IncrementalTreeTokens;
 
@@ -22,9 +24,12 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
     IParseTable parseTable;
 
     public final IncrementalParser2 parser;
+
     IncrementalStrategoTermImploder2 imploder;
-    IncrementalTreeShapedTokenizer2 tokenizer;
-//    IncrementalTreeShapedTokenizer tokenizer;
+//    IncrementalStrategoTermImploder imploder;
+
+//    IncrementalTreeShapedTokenizer2 tokenizer;
+    IncrementalTreeShapedTokenizer tokenizer;
 
     InlinedIncrementalJSGLR2(IParseTable parseTable) {
         this.parseTable = parseTable;
@@ -36,9 +41,12 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
                 new IncrementalParser2(parseTable);
 
         this.parser = parser;
+
         this.imploder = new IncrementalStrategoTermImploder2();
-        this.tokenizer = new IncrementalTreeShapedTokenizer2();
-//        this.tokenizer = new IncrementalTreeShapedTokenizer();
+//        this.imploder = new IncrementalStrategoTermImploder();
+
+//        this.tokenizer = new IncrementalTreeShapedTokenizer2();
+        this.tokenizer = new IncrementalTreeShapedTokenizer();
     }
 
     @Override
@@ -74,8 +82,8 @@ public class InlinedIncrementalJSGLR2 implements JSGLR2<IStrategoTerm> {
             IImplodeResult<TreeImploder.SubTree<IStrategoTerm>, ResultCache2, IStrategoTerm> implodeResult = imploder.implode(request, parseForest, previousImploderCache);
 
             IncrementalTreeTokens tokens =
-//                    tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
-                    tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens);
+                    tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens).tokens;
+//                    tokenizer.tokenize(request, implodeResult.intermediateResult(), previousTokens);
 
             parseResult.postProcessMessages(tokens);
 
