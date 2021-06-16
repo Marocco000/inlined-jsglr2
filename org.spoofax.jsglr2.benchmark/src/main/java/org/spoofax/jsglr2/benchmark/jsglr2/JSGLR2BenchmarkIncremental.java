@@ -34,7 +34,7 @@ public abstract class JSGLR2BenchmarkIncremental extends JSGLR2Benchmark<String[
     }
 
 //    @Param({ "Batch", "Elkhound", "Incremental", "IncrementalNoCache", "InlinedIncremental" }) public ParserType parserType;
-    @Param({ "Batch", "Incremental", "InlinedIncremental" }) public ParserType parserType;
+    @Param({ "Incremental", "InlinedIncremental" }) public ParserType parserType;
 
     @Param({ "-1" }) public int i;
 
